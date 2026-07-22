@@ -189,16 +189,6 @@ jobs:
         with:
           tag: ${{ needs.check-version.outputs.release-version }}
 
-      - name: Create release note
-        id: changelog
-        uses: requarks/changelog-action@b78a3354a01f4a1affb484b9264b506a815c46b1 # v1.10.3
-        with:
-          fromTag: ${{ needs.check-version.outputs.release-version }}
-          toTag: ${{ needs.check-version.outputs.previous-version }}
-          excludeTypes: ${{ env.RELEASE_NOTE_EXCLUDED_TYPES }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          writeToFile: false
-
       - name: Download build
         id: download
         uses: actions/download-artifact@v4
@@ -212,7 +202,6 @@ jobs:
           tag_name: ${{ needs.check-version.outputs.release-version }}
           target_commitish: ${{ github.head_ref || github.ref }}
           name: ${{ needs.check-version.outputs.release-version }}
-          body: ${{ steps.changelog.outputs.changes }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   publish-docker:
