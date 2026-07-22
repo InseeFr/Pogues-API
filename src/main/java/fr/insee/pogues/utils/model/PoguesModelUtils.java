@@ -1,0 +1,225 @@
+package fr.insee.pogues.utils.model;
+
+import fr.insee.pogues.exception.questionnaire.composition.IllegalFlowControlException;
+import fr.insee.pogues.exception.questionnaire.composition.IllegalIterationException;
+import fr.insee.pogues.model.*;
+import fr.insee.pogues.model.Questionnaire.Iterations;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static fr.insee.pogues.utils.model.question.Table.isDynamicTable;
+
+/** Helper class to factorize methods on Pogues-Model objects.
+ * Some parts of the model should be revised to make this class obsolete. */
+@Slf4j
+public class PoguesModelUtils {
+
+    /** Name of the artificial end sequence added by the front (to manage some GoTo cases). */
+    public static final String FAKE_LAST_ELEMENT_ID = "idendquest";
+
+    private PoguesModelUtils() {}
+
+    /**
+     * Return the list of components of depth 1 (that are sequences and/or questionnaire references)
+     * of the given questionnaire, without the fake last sequence component (filtered using its specific id).
+     * @param questionnaire A Questionnaire object.
+     * @return A list of sequences / questionnaire references, in the order defined in the questionnaire.
+     */
+    public static List<ComponentType> getSequences(Questionnaire questionnaire) {
+        return questionnaire.getChild().stream()
+                .filter(componentType -> !FAKE_LAST_ELEMENT_ID.equals(componentType.getId()))
+                .toList();
+    }
+
+
+    /**
+     * Compute scopes of questionnaire
+     * Scope can be:
+     *   - the id,name of a Loop (main Loop, not Linked one)
+     *   - the id,name of DynamicTable Question
+     *   - the id,name of Pairwise Question
+     *  This information are inside Iterations object in Questionnaire.
+     * @param questionnaire
+     * @return couples of (id, name) corresponding to scopes
+     */
+    public static Map<String, String> getQuestionnaireScopes(Questionnaire questionnaire){
+        // compute Dynamic Table scope or Pairwise scope deep inside questionnaire
+        Map<String, String> scopes = getScopeInComponents(questionnaire.getChild());
+
+        // compute all other scopes based on Loop
+        Iterations iterations = questionnaire.getIterations();
+        if(iterations == null || iterations.getIteration().isEmpty()) return scopes;
+
+        for(IterationType iteration : iterations.getIteration()){
+            // IterationType is an abstract class, and it exists only one implementation: DynamicIterationType, so we can cast it
+            if(iteration instanceof DynamicIterationType iterationType){
+                String iterableRef = iterationType.getIterableReference();
+
+                // Keep only Main Iteration
+                if(iterableRef == null){
+                    scopes.put(iteration.getId(), iteration.getName());
+                    continue;
+                }
+                // already in computed scopes
+                if(scopes.get(iterableRef) != null) continue;
+                // Fallback to get the scope name -> we need to find the Name of iteration inside question
+                getQuestionByID(questionnaire.getChild(), iterableRef)
+                        .ifPresent(question -> scopes.put(iterableRef, question.getName()));
+            }
+
+        }
+        return scopes;
+    }
+
+    private static Map<String, String> getScopeInComponents(List<ComponentType> components){
+        Map<String, String> scopes = new HashMap<>();
+        if(components == null || components.isEmpty()) return scopes;
+
+        for(ComponentType component : components){
+            if(component instanceof QuestionType question &&
+                    (QuestionTypeEnum.PAIRWISE.equals(question.getQuestionType()) || isDynamicTable(question))){
+                scopes.put(component.getId(), component.getName());
+            } else if(component instanceof SequenceType sequence){
+                scopes.putAll(getScopeInComponents(sequence.getChild()));
+            }
+        }
+        return scopes;
+    }
+
+
+    /**
+     * The 'IfTrue' property defines begin/end member references (separated with '-') of the filter.
+     * @param flowControlType A FlowControl object.
+     * @return A String array of size 2 containing begin/end member references of the filter.
+     * @throws IllegalFlowControlException If the FlowControl 'IfTrue' property doesn't match the format "id-id".
+     */
+    public static String[] getFlowControlBounds(FlowControlType flowControlType) throws IllegalFlowControlException {
+        if (flowControlType.getIfTrue() == null) {
+            throw new IllegalFlowControlException(String.format(
+                    "'IfTrue' property is null in FlowControl '%s'",
+                    flowControlType.getId()));
+        }
+        String[] flowControlBounds = flowControlType.getIfTrue().split("-");
+        if (flowControlBounds.length != 2) {
+            throw new IllegalFlowControlException(String.format(
+                    "'IfTrue' value '%s' is not compliant with Pogues-Model specification in FlowControl '%s'",
+                    flowControlType.getIfTrue(), flowControlType.getId()));
+        }
+        return flowControlBounds;
+    }
+
+    /**
+     * The 'MemberReference' property is a list containing begin/end member references of the loop.
+     * If the list contains only one reference, it means that begin and end members are the same.
+     * A 'MemberReference' property with one element is accepted for now, yet a warning is shown in the log in that case
+     * (Pogues UI will be updated so that this case should not exist).
+     * @param iterationType An Iteration object.
+     * @return A List of strings of size 2 containing begin/end member references of the iteration.
+     * (The result will always be of size 2 even if begin and end members are equal.)
+     * @throws IllegalIterationException If The 'MemberReference' property is not of size 1 or 2.
+     */
+    public static List<String> getIterationBounds(IterationType iterationType) throws IllegalIterationException {
+        int size = iterationType.getMemberReference().size();
+        if (!(size == 2 || size == 1)) {
+            throw new IllegalIterationException(String.format(
+                    "'MemberReference' of iteration object '%s' contains %s references (should contain 1 or 2).",
+                    iterationType.getId(), size));
+        }
+        if (size == 1) {
+            log.warn("'MemberReference' property with 1 element is deprecated (iteration object '{}').",
+                    iterationType.getId());
+            iterationType.getMemberReference().add(iterationType.getMemberReference().getFirst());
+        }
+        return iterationType.getMemberReference();
+    }
+
+    /**
+     * Returns true if the given iteration corresponds to a linked loop.
+     * @param iterationType A Pogues iteration (loop) object.
+     * @return True if the given iteration corresponds to a linked loop.
+     * @throws IllegalIterationException If the iteration object given is not a DynamicIterationType.
+     */
+    public static boolean isLinkedLoop(IterationType iterationType) throws IllegalIterationException {
+        checkIterationInstance(iterationType);
+        return ((DynamicIterationType) iterationType).getIterableReference() != null;
+    }
+
+    /**
+     * Get the roundabout of a questionnaire if it exists.
+     * There should be only one.
+     * @param questionnaire Questionnaire from which we want the roundabout.
+     * @return The roundabout of the questionnaire, or null if there is none.
+     */
+    public static Optional<RoundaboutType> getQuestionnaireRoundabout(Questionnaire questionnaire) {
+        return questionnaire.getChild().stream()
+                .filter(RoundaboutType.class::isInstance).map(RoundaboutType.class::cast).findFirst();
+    }
+
+    /**
+     * Check if the questionnaire's formula language is VTL.
+     * @param questionnaire Questionnaire to check
+     * @return Whether the questionnaire language is VTL.
+     */
+    public static boolean isQuestionnaireFormulaLanguageVTL(Questionnaire questionnaire) {
+        return FormulasLanguageEnum.VTL.equals(questionnaire.getFormulasLanguage());
+    }
+
+    /**
+     * The iteration reference of the given iteration.
+     * If the iteration is a "main" loop, this is null.
+     * If it is a linked loop, this is the identifier of the corresponding "main" loop.
+     * @param iterationType A Pogues iteration (loop) object.
+     * @return The iteration reference of the given iteration.
+     * @throws IllegalIterationException If the iteration object given is not a DynamicIterationType.
+     */
+    public static String getLinkedLoopReference(IterationType iterationType) throws IllegalIterationException {
+        checkIterationInstance(iterationType);
+        return ((DynamicIterationType) iterationType).getIterableReference();
+    }
+
+    /**
+     * Find the question associated to the id from a list of components.
+     * @param components A list of components (questions and sequences).
+     * @param id ID of the question we want to find.
+     * @return The question associated to the id, or null.
+     */
+    public static Optional<QuestionType> getQuestionByID(List<ComponentType> components, String id) {
+        Optional<QuestionType> question = components.stream()
+            .filter(QuestionType.class::isInstance)
+            .map(QuestionType.class::cast)
+            .filter(q -> id.equals(q.getId())).findFirst();
+        if (question.isPresent()) return question;
+
+        // Look into (sub)sequences if question was not found
+        List<SequenceType> sequences = components.stream().filter(SequenceType.class::isInstance).map(SequenceType.class::cast).toList();
+        for (SequenceType sequence : sequences) {
+            Optional<QuestionType> questionFromSequence = getQuestionByID(sequence.getChild(), id);
+            if (questionFromSequence.isPresent()) {
+                return questionFromSequence;
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Safety check due to a flaw in Pogues-Model: abstract class IterationType has only one inheritor that is
+     * DynamicIterationType. Only the DynamicIterationType class has the "iteration reference" property...
+     * Therefore, an iteration object has to be cast to get this property.
+     * This method throws an exception if the cast fails, and explains why.
+     * @param iterationType A Pogues iteration object.
+     * @throws IllegalIterationException If the iteration object given is not a DynamicIterationType.
+     */
+    private static void checkIterationInstance(IterationType iterationType) throws IllegalIterationException {
+        if (! (iterationType instanceof DynamicIterationType))
+            throw new IllegalIterationException(String.format(
+                    "Pogues iteration with id=%s and name=%s is not is of type %s. " +
+                            "Only DynamicIterationType is supported.",
+                    iterationType.getId(), iterationType.getName(), iterationType.getClass().getSimpleName()));
+    }
+
+}

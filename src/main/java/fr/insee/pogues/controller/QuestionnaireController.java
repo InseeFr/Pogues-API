@@ -1,0 +1,342 @@
+package fr.insee.pogues.controller;
+
+import fr.insee.pogues.configuration.auth.AuthorityPrivileges;
+import fr.insee.pogues.configuration.auth.user.UserProvider;
+import fr.insee.pogues.configuration.auth.user.User;
+import fr.insee.pogues.configuration.properties.ApplicationProperties;
+import fr.insee.pogues.exception.validation.QuestionnaireIdentifierException;
+import fr.insee.pogues.model.Questionnaire;
+import fr.insee.pogues.persistence.service.IQuestionnaireService;
+import fr.insee.pogues.persistence.service.JSONLunaticService;
+import fr.insee.pogues.persistence.service.PublicEnemyVariableService;
+import fr.insee.pogues.service.validation.ModelValidationService;
+import fr.insee.pogues.utils.PoguesDeserializer;
+import fr.insee.pogues.service.SuggesterVisuService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static fr.insee.pogues.service.validation.steps.IdentifierCheck.QUESTIONNAIRE_ID_PATTERN;
+
+/**
+ * WebService class for the Instrument Persistence
+ * @author I6VWID
+ */
+@RestController
+@RequestMapping("/api/persistence")
+@Tag(name = "2. Questionnaire Controller")
+@RequiredArgsConstructor
+@Slf4j
+public class QuestionnaireController {
+
+	private final ApplicationProperties applicationProperties;
+	private final IQuestionnaireService questionnaireService;
+	private final JSONLunaticService jsonLunaticService;
+	private final PublicEnemyVariableService publicEnemyVariableService;
+	private final SuggesterVisuService suggesterVisuService;
+	private final UserProvider userProvider;
+	private final ModelValidationService modelValidationService;
+
+	/**
+	 * @param id: the id of questionnaire
+	 * @param references (false by default): this param indicates if you want the complete questionnaire
+	 *           A questionnaire may be "contain" other questionnaires. These questionnaires appear as references.
+	 *           This end-point makes it possible to obtain the complete questionnaire, by replacing the references with the complete questionnaires.
+	 * @return the json representation of questionnaire (and potentially its references according to references param)
+	 * @throws Exception
+	 */
+	@GetMapping("questionnaire/{id}")
+    @Operation(
+			operationId  = "getQuestionnaires",
+	        summary = "Get questionnaire",
+            description = "Gets the questionnaire with id {id}"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "Not found")
+    })
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+	public ResponseEntity<Object> getQuestionnaire(
+			@PathVariable(value = "id") String id,
+			@RequestParam(name = "references", defaultValue = "false") Boolean references
+	) throws Exception {
+		JsonNode result = references ?
+					questionnaireService.getQuestionnaireByIDWithReferences(id) :
+					questionnaireService.getQuestionnaireByID(id);
+		return ResponseEntity.status(HttpStatus.OK).body(result);
+	}
+	
+    @GetMapping("questionnaire/json-lunatic/{id}")
+    @Operation(
+			operationId = "getJsonLunatic",
+	        summary = "Get questionnaire",
+            description = "Gets the questionnaire with id JsonLunatic {id}"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "Not found")
+    })
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+	public ResponseEntity<Object> getJsonLunatic(
+			@PathVariable(value = "id") String id
+	) throws Exception {
+		JsonNode result = jsonLunaticService.getJsonLunaticByID(id);
+		return ResponseEntity.status(HttpStatus.OK).body(result);
+
+	}
+
+    @GetMapping("questionnaires/search")
+    @Operation(
+    		operationId = "searchQuestionnaires",
+            summary = "Search questionnaires",
+            description = "Search questionnaires matching query params"
+    )
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Success"),
+			@ApiResponse(responseCode = "400", description = "Bad request")
+	})
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+    public ResponseEntity<Object> searchQuestionnaires(
+            @RequestParam("owner") String owner
+    ) throws Exception {
+		List<JsonNode> questionnaires = new ArrayList<>();
+		if(null != owner){
+			questionnaires.addAll(questionnaireService.getQuestionnairesByOwner(owner));
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(questionnaires);
+    }
+
+	@GetMapping("questionnaires/search/meta")
+	@Operation(
+			operationId = "searchQuestionnairesMetadata",
+	        summary = "Get questionnaires' metadata",
+            description = "Get questionnaires' metadata matching query params"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+	public ResponseEntity<Object> getQuestionnairesMetadata(
+            @RequestParam("owner") String owner
+	) throws Exception {
+		List<JsonNode> questionnairesMetadata = new ArrayList<>();
+		if(null != owner){
+			questionnairesMetadata.addAll(questionnaireService.getQuestionnairesMetadata(owner));
+		}
+		return ResponseEntity.status(HttpStatus.OK).body(questionnairesMetadata);
+
+	}
+	
+	@GetMapping("questionnaires/stamps")
+	@Operation(
+			operationId = "searchQuestionnairesStamps",
+	        summary = "Get stamps in database",
+            description = "Get stamps with at least one questionnaire saved in database"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Bad request"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+	public ResponseEntity<Object> getQuestionnaireStamps() throws Exception {
+        List<JsonNode> questionnairesStamps = new ArrayList<>(questionnaireService.getQuestionnairesStamps());
+		return ResponseEntity.status(HttpStatus.OK).body(questionnairesStamps);
+	}
+	
+
+	@DeleteMapping("questionnaire/{id}")
+	@Operation(
+			operationId = "deleteQuestionnaire",
+	        summary = "Delete questionnaire",
+            description = "Delete questionnaire with id {id}"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "No content"),
+            @ApiResponse(responseCode = "404", description = "Not found")
+    })
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+	public ResponseEntity<Object> deleteQuestionnaire(Authentication auth,
+			@PathVariable(value = "id") String id
+	) throws Exception {
+		questionnaireService.deleteQuestionnaireByID(id);
+		User user = userProvider.getUser(auth);
+		log.info("Questionnaire {} deleted by {}", id, user.getName());
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+
+	@GetMapping("questionnaire/{id}/vars")
+	@Operation(
+			operationId  = "getQuestionnaireVars",
+			summary = "Get the variables of a questionnaire",
+			description = "Gets the variables with questionnaire id {id}",
+			responses = {
+					@ApiResponse(content = @Content(mediaType = "application/json"))}
+	)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Success"),
+			@ApiResponse(responseCode = "404", description = "Not found")
+	})
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+	public ResponseEntity<ArrayNode> getVariables(
+			@PathVariable(value = "id") String id
+	) {
+		ArrayNode result = publicEnemyVariableService.getVariablesByQuestionnaireForPublicEnemy(id);
+		return ResponseEntity.status(HttpStatus.OK).body(result);
+	}
+	
+	@DeleteMapping("questionnaire/json-lunatic/{id}")
+	@Operation(
+			operationId = "deleteJsonLunatic",
+	        summary = "Delete Json Lunatic of a questionnaire",
+            description = "Delete the Json Lunatic representation of a  questionnaire with id {id}"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "No content"),
+            @ApiResponse(responseCode = "404", description = "Not found")
+    })
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+	public ResponseEntity<Object> deleteJsonLunatic(
+			@PathVariable(value = "id") String id
+	) throws Exception {
+		jsonLunaticService.deleteJsonLunaticByID(id);
+		log.info("Questionnaire {} deleted", id);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+
+	@PutMapping("questionnaire/{id}")
+	@Operation(
+			operationId = "updateQuestionnaire",
+	        summary = "Update questionnaire",
+            description = "Update a `Questionnaire` object with id {id}"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "400", description = "Invalid"),
+            @ApiResponse(responseCode = "404", description = "Not found"),
+    })
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+	public ResponseEntity<Object> updateQuestionnaire(
+			@PathVariable(value = "id") String id,
+			@RequestBody JsonNode jsonContent
+	) throws Exception {
+        modelValidationService.validate(PoguesDeserializer.questionnaireToJavaObject(jsonContent), id);
+        questionnaireService.updateQuestionnaire(id, jsonContent);
+        log.info("Questionnaire {} updated", id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+	
+	@PutMapping("questionnaire/json-lunatic/{id}")
+	@Operation(
+			operationId = "updateJsonLunatic",
+	        summary = "Update Json Lunatic",
+            description = "Update Json Lunatic of a `Questionnaire` object with id {id}"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success"),
+            @ApiResponse(responseCode = "404", description = "Not found")
+    })
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+	public ResponseEntity<Object> updateJsonLunatic(
+			@PathVariable(value = "id") String id,
+			@RequestBody JsonNode jsonLunatic
+	) throws Exception {
+		jsonLunaticService.updateJsonLunatic(id, jsonLunatic);
+		log.info("Json Lunatic of questionnaire {} updated", id);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+
+	@PostMapping("questionnaires")
+	@Operation(
+			operationId = "createQuestionnaire",
+	        summary = "Create Questionnaire",
+            description = "Creates a new `Questionnaire`"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(responseCode = "400", description = "Invalid"),
+            @ApiResponse(responseCode = "409", description = "Entity already exists"),
+    })
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+	public ResponseEntity<Object> createQuestionnaire(
+			@RequestBody JsonNode jsonContent
+	) throws Exception {
+		Questionnaire questionnaire = PoguesDeserializer.questionnaireToJavaObject(jsonContent);
+		String id = questionnaire.getId();
+        modelValidationService.validate(questionnaire, id);
+        questionnaireService.createQuestionnaire(jsonContent);
+        String questionnaireUri = String.format("%s://%s/api/persistence/questionnaire/%s",
+                applicationProperties.scheme(),
+                applicationProperties.host(),
+                id);
+        log.info("New questionnaire created , uri: {}", questionnaireUri);
+        return ResponseEntity.status(HttpStatus.CREATED).header("Location", questionnaireUri).build();
+	}
+	
+	@PostMapping("questionnaires/json-lunatic")
+	@Operation(
+			operationId = "createJsonLunatic",
+	        summary = "Create Json Lunatic of questionnaire",
+            description = "Creates a new Json Lunatic entry"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created"),
+            @ApiResponse(responseCode = "400", description = "Invalid"),
+            @ApiResponse(responseCode = "409", description = "Entity already exists"),
+    })
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+	public ResponseEntity<Object> createJsonLunatic(
+			@RequestBody JsonNode jsonContent
+	) throws Exception {
+		String id = jsonContent.get("id").asString();
+        if (! id.matches(QUESTIONNAIRE_ID_PATTERN))
+            throw new QuestionnaireIdentifierException(id);
+        jsonLunaticService.createJsonLunatic(jsonContent);
+        String jsonLunaticUri = String.format("%s://%s/api/persistence/questionnaire/json-lunatic/%s",
+                applicationProperties.scheme(),
+                applicationProperties.host(),
+                id);
+        log.info("New Json Lunatic created, uri: {}", jsonLunaticUri);
+        return ResponseEntity.status(HttpStatus.CREATED).header("Location", jsonLunaticUri).build();
+	}
+
+	@Deprecated
+	@GetMapping("questionnaire/{id}/nomenclatures")
+	@Operation(
+			operationId  = "getNomenclaturesUrls",
+			summary = "Get object representation of id:url for suggester of a questionnaire",
+			description = "Deprecated. Use GET /api/questionnaires/{questionnaireId}/nomenclatures/urls instead.",
+			deprecated = true,
+			responses = {
+					@ApiResponse(content = @Content(mediaType = "application/json"))}
+	)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Success"),
+			@ApiResponse(responseCode = "404", description = "Not found")
+	})
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+	public ResponseEntity<JsonNode> getNomenclaturesUrls(
+			@PathVariable(value = "id") String id
+	) throws Exception {
+		JsonNode jsonPoguesQuestionnaire = questionnaireService.getQuestionnaireByIDWithReferences(id);
+		List<String> nomenclaturesIds = suggesterVisuService.getNomenclaturesIdsFromQuestionnaire(String.valueOf(jsonPoguesQuestionnaire));
+		JsonNode nomenclaturesUrls = suggesterVisuService.createJsonNomenclaturesForVisu(nomenclaturesIds);
+		return ResponseEntity.status(HttpStatus.OK).body(nomenclaturesUrls);
+	}
+
+}

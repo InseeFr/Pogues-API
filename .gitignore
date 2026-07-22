@@ -1,0 +1,18 @@
+_book
+target
+*.iml
+.idea/
+*.log
+node_modules
+# Ignore Eclipse files
+.classpath
+.project
+.settings/
+#Ignore Pogues Front files
+WebContent/static/
+WebContent/index.html
+WebContent/*.css
+WebContent/*.map
+WebContent/*.js
+/bin/
+src/main/resources/local.application.yaml

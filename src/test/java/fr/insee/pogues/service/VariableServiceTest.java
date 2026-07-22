@@ -1,0 +1,252 @@
+package fr.insee.pogues.service;
+
+import fr.insee.pogues.exception.PoguesException;
+import fr.insee.pogues.exception.questionnaire.QuestionnaireNotFoundException;
+import fr.insee.pogues.exception.variables.VariableNotFoundException;
+import fr.insee.pogues.model.*;
+import fr.insee.pogues.persistence.service.VersionService;
+import fr.insee.pogues.service.stub.QuestionnaireServiceStub;
+import fr.insee.pogues.utils.PoguesSerializer;
+import fr.insee.pogues.controller.error.ErrorCode;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.JsonNode;
+
+import java.math.BigInteger;
+import java.util.List;
+
+import static fr.insee.pogues.utils.Utils.loadQuestionnaireFromResources;
+import static fr.insee.pogues.utils.json.JSONFunctions.jsonStringtoJsonNode;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
+@ExtendWith(MockitoExtension.class)
+class VariableServiceTest {
+
+    @Mock
+    VersionService versionService;
+
+    private VariableService variableService;
+    private QuestionnaireServiceStub questionnaireService;
+
+    @BeforeEach
+    void init() {
+        questionnaireService = new QuestionnaireServiceStub();
+        variableService = new VariableService(questionnaireService, versionService);
+    }
+
+    @Test
+    @DisplayName("Should fetch questionnaire variables")
+    void getQuestionnaireVariables_success() throws Exception {
+        // Given a questionnaire with 1 variable
+        Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("simple-questionnaire.json");
+        String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
+        JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
+        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        VariableType expected = new CollectedVariableType();
+        expected.setId("lmyo22nw");
+        expected.setName("Q1");
+        expected.setLabel("Q1 label");
+
+        // When we get the questionnaire's variables
+        List<VariableType> res = variableService.getQuestionnaireVariables("lmyoceix");
+
+        // Then the variable is fetched
+        assertEquals(1, res.size());
+        assertEquals(expected.getId(), res.getFirst().getId());
+    }
+
+    @Test
+    @DisplayName("Should fetch questionnaire variables and compute the scope name")
+    void getQuestionnaireVariables_success_scopeName() throws Exception {
+        // Given a questionnaire with 1 variable
+        Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/withScope.json");
+        String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
+        JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
+        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+
+        String questionnaireId = "ma0nzzmj";
+        String variableId = "mdy51s3x";
+
+        VariableType expected = new CollectedVariableType();
+        expected.setId(variableId);
+        expected.setName("NOMDUPOKEM");
+        expected.setLabel("NOMDUPOKEM label");
+        expected.setScope("mdy57fmb");
+        TextDatatypeType expectedDatatype = new TextDatatypeType();
+        expectedDatatype.setTypeName(DatatypeTypeEnum.TEXT);
+        expectedDatatype.setMaxLength(BigInteger.valueOf(249));
+        expected.setDatatype(expectedDatatype);
+
+        // When we get the questionnaire's variables
+        List<VariableType> res = variableService.getQuestionnaireVariables(questionnaireId);
+
+        // Then the variable is fetched
+        VariableType variable = res.stream().filter(v -> variableId.equals(v.getId())).toList().getFirst();
+        assertThat(variable).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("Should fetch questionnaire variables and compute the question scope name")
+    void getQuestionnaireVariables_success_scopeNameQuestion() throws Exception {
+        // Given a questionnaire with 1 variable
+        Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/withScopeFromQuestion.json");
+        String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
+        JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
+        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+
+        String questionnaireId = "mig28dzs";
+        String variableId = "mig1qa6h";
+
+        VariableType expected = new CollectedVariableType();
+        expected.setId(variableId);
+        expected.setName("Q_DYN1");
+        expected.setLabel("mesure");
+        expected.setScope("mig1ypma");
+        TextDatatypeType expectedDatatype = new TextDatatypeType();
+        expectedDatatype.setTypeName(DatatypeTypeEnum.TEXT);
+        expectedDatatype.setMaxLength(BigInteger.valueOf(249));
+        expected.setDatatype(expectedDatatype);
+
+        // When we get the questionnaire's variables
+        List<VariableType> res = variableService.getQuestionnaireVariables(questionnaireId);
+
+        // Then the variable is fetched
+        VariableType variable = res.stream().filter(v -> variableId.equals(v.getId())).toList().getFirst();
+        assertThat(variable).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("Should trigger an error when we try to fetch variables from a questionnaire that does not exist")
+    void getQuestionnaireVariables_error_questionnaireNotFound() {
+        // Given a questionnaire that does not exist
+
+        // When we get the questionnaire's variables
+        PoguesException exception = assertThrows(
+                QuestionnaireNotFoundException.class,
+                () -> variableService.getQuestionnaireVariables("no-questionnaire"));
+
+        // Then a 404 exception is thrown
+        assertEquals(404, exception.getStatus());
+        assertEquals(ErrorCode.QUESTIONNAIRE_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("Should update questionnaire variable")
+    void upsertQuestionnaireVariable_success_updated() throws Exception {
+        // Given a questionnaire with 1 variable
+        Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("simple-questionnaire.json");
+        String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
+        JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
+        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+
+        assertEquals(1, variableService.getQuestionnaireVariables("lmyoceix").size());
+
+        // When we update the variable
+        VariableType variable = new CollectedVariableType();
+        variable.setId("lmyo22nw");
+        boolean isCreated = variableService.upsertQuestionnaireVariable("lmyoceix", variable);
+
+        // Then the questionnaire is updated
+        assertFalse(isCreated);
+        assertEquals(1, variableService.getQuestionnaireVariables("lmyoceix").size());
+    }
+
+    @Test
+    @DisplayName("Should create questionnaire variable")
+    void upsertQuestionnaireVariable_success_created() throws Exception {
+        // Given a questionnaire with 1 variable
+        Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("simple-questionnaire.json");
+        String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
+        JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
+        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+
+        assertEquals(1, variableService.getQuestionnaireVariables("lmyoceix").size());
+
+        // When we insert a new variable
+        VariableType variable = new CollectedVariableType();
+        variable.setId("new-variable");
+        boolean isCreated = variableService.upsertQuestionnaireVariable("lmyoceix", variable);
+
+        // Then the questionnaire is created
+        assertTrue(isCreated);
+        assertEquals(2, variableService.getQuestionnaireVariables("lmyoceix").size());
+    }
+
+    @Test
+    @DisplayName("Should trigger an error when we try to add a variable in a questionnaire that does not exist")
+    void upsertQuestionnaireVariable_error_questionnaireNotFound() {
+        // Given a questionnaire that does not exist
+
+        // When we insert a new variable
+        VariableType variable = new CollectedVariableType();
+        variable.setId("new-variable");
+        PoguesException exception = assertThrows(
+                QuestionnaireNotFoundException.class,
+                () -> variableService.upsertQuestionnaireVariable("no-questionnaire", variable));
+
+        // Then a 404 exception is thrown
+        assertEquals(404, exception.getStatus());
+        assertEquals(ErrorCode.QUESTIONNAIRE_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("Should delete questionnaire variable")
+    void deleteQuestionnaireVariable_success() throws Exception {
+        // Given a questionnaire with 1 variable
+        Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("simple-questionnaire.json");
+        String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
+        JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
+        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+
+        assertEquals(1, variableService.getQuestionnaireVariables("lmyoceix").size());
+
+        // When we delete the variable
+        assertDoesNotThrow(() -> variableService.deleteQuestionnaireVariable("lmyoceix", "lmyo22nw"));
+
+        // Then there is 0 variables in the questionnaire
+        assertEquals(0, variableService.getQuestionnaireVariables("lmyoceix").size());
+    }
+
+    @Test
+    @DisplayName("Should trigger an error when we try to delete a variable that does not exist")
+    void deleteQuestionnaireVariable_error_variableNotFound() throws Exception {
+        // Given a questionnaire with 1 variable
+        Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("simple-questionnaire.json");
+        String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
+        JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
+        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+
+        assertEquals(1, variableService.getQuestionnaireVariables("lmyoceix").size());
+
+        // When we delete a variable that does not exist
+        VariableNotFoundException exception = assertThrows(
+                VariableNotFoundException.class,
+                () -> variableService.deleteQuestionnaireVariable("lmyoceix", "no-variable"));
+
+        // Then a 404 exception is thrown and no variable has been deleted
+        assertEquals(404, exception.getStatus());
+        assertEquals(ErrorCode.VARIABLE_NOT_FOUND, exception.getErrorCode());
+        assertEquals(1, variableService.getQuestionnaireVariables("lmyoceix").size());
+    }
+
+    @Test
+    @DisplayName("Should trigger an error when we try to delete a variable in a questionnaire that does not exist")
+    void deleteQuestionnaireVariable_error_questionnaireNotFound() {
+        // Given a questionnaire that does not exist
+
+        // When we delete a variable
+        PoguesException exception = assertThrows(
+                QuestionnaireNotFoundException.class,
+                () -> variableService.deleteQuestionnaireVariable("no-questionnaire", "no-variable"));
+
+        // Then a 404 exception is thrown
+        assertEquals(404, exception.getStatus());
+        assertEquals(ErrorCode.QUESTIONNAIRE_NOT_FOUND, exception.getErrorCode());
+    }
+
+}

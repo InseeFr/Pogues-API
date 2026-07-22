@@ -1,0 +1,154 @@
+{
+  "id" : "articulation-id",
+  "genericName" : "QUESTIONNAIRE",
+  "agency" : "fr.insee",
+  "final" : false,
+  "flowLogic" : "FILTER",
+  "formulasLanguage" : "VTL",
+  "lastUpdatedDate" : "Thu Sep 04 2025 15:10:31 GMT+0200 (heure d’été d’Europe centrale)",
+  "owner" : "DR59-SNDI59",
+  "Name" : "QUESTIONNA",
+  "Label" : [ "Questionnaire" ],
+  "Control" : [ ],
+  "FlowControl" : [ ],
+  "TargetMode" : [ "CAPI", "CAWI", "CATI", "PAPI" ],
+  "Child" : [ {
+    "id" : "mf5fover",
+    "type" : "RoundaboutType",
+    "Name" : "RONDPOINT",
+    "Label" : [ "Rond-point" ],
+    "Declaration" : [ ],
+    "Control" : [ ],
+    "FlowControl" : [ ],
+    "TargetMode" : [ "CAPI", "CAWI", "CATI", "PAPI" ],
+    "OccurrenceLabel" : "rp",
+    "OccurrenceDescription" : "",
+    "Locked" : false,
+    "Loop" : {
+      "Name" : "LOOP_WRAPPER",
+      "MemberReference" : [ "mf5elrcg", "mf5elrcg" ],
+      "IterableReference" : "mf5ejus1"
+    }
+  }, {
+    "id" : "mf5elrcg",
+    "depth" : 1,
+    "genericName" : "MODULE",
+    "type" : "SequenceType",
+    "Name" : "S1",
+    "Label" : [ "Sequence 1" ],
+    "Declaration" : [ ],
+    "Control" : [ ],
+    "FlowControl" : [ ],
+    "TargetMode" : [ "CAPI", "CAWI", "CATI", "PAPI" ],
+    "Child" : [ {
+      "id" : "mf5elrfi",
+      "questionType" : "SIMPLE",
+      "type" : "QuestionType",
+      "Name" : "QSIMPLE",
+      "Label" : [ "Question simple" ],
+      "Declaration" : [ ],
+      "Control" : [ ],
+      "FlowControl" : [ ],
+      "TargetMode" : [ "CAPI", "CAWI", "CATI", "PAPI" ],
+      "Response" : [ {
+        "id" : "mf5eyqer",
+        "mandatory" : false,
+        "Datatype" : {
+          "typeName" : "TEXT",
+          "type" : "TextDatatypeType",
+          "MaxLength" : 249
+        },
+        "CollectedVariableReference" : "mf5ejwpk"
+      } ]
+    }, {
+      "id" : "mf5em64r",
+      "questionType" : "SIMPLE",
+      "type" : "QuestionType",
+      "Name" : "QSIMPLE2",
+      "Label" : [ "Question simple 2" ],
+      "Declaration" : [ ],
+      "Control" : [ ],
+      "FlowControl" : [ ],
+      "TargetMode" : [ "CAPI", "CAWI", "CATI", "PAPI" ],
+      "Response" : [ {
+        "id" : "mf5ejbsy",
+        "mandatory" : false,
+        "Datatype" : {
+          "typeName" : "TEXT",
+          "type" : "TextDatatypeType",
+          "MaxLength" : 249
+        },
+        "CollectedVariableReference" : "mf5evr9k"
+      } ]
+    } ]
+  }, {
+    "id" : "idendquest",
+    "depth" : 1,
+    "genericName" : "MODULE",
+    "type" : "SequenceType",
+    "Name" : "QUESTIONNAIRE_END",
+    "Label" : [ "QUESTIONNAIRE_END" ],
+    "Declaration" : [ ],
+    "Control" : [ ],
+    "FlowControl" : [ ],
+    "TargetMode" : [ "CAPI", "CAWI", "CATI", "PAPI" ],
+    "Child" : [ ]
+  } ],
+  "DataCollection" : [ ],
+  "ComponentGroup" : [ {
+    "id" : "mf5etl1f",
+    "Name" : "PAGE_1",
+    "Label" : [ "Components for page 1" ],
+    "MemberReference" : [ "mf5elrcg", "mf5elrfi", "mf5em64r", "idendquest" ]
+  } ],
+  "CodeLists" : {
+    "CodeList" : [ ]
+  },
+  "Variables" : {
+    "Variable" : [ {
+      "id" : "mf5ejwpk",
+      "type" : "CollectedVariableType",
+      "Datatype" : {
+        "typeName" : "TEXT",
+        "type" : "TextDatatypeType",
+        "MaxLength" : 249
+      },
+      "Name" : "QSIMPLE",
+      "Label" : "QSIMPLE label",
+      "Scope" : "mf5ejus1"
+    }, {
+      "id" : "mf5evr9k",
+      "type" : "CollectedVariableType",
+      "Datatype" : {
+        "typeName" : "TEXT",
+        "type" : "TextDatatypeType",
+        "MaxLength" : 249
+      },
+      "Name" : "QSIMPLE2",
+      "Label" : "QSIMPLE2 label",
+      "Scope" : "mf5ejus1"
+    } ]
+  },
+  "Iterations" : {
+    "Iteration" : [ {
+      "id" : "mf5ejus1",
+      "type" : "DynamicIterationType",
+      "Name" : "LOOP",
+      "MemberReference" : [ "mf5elrcg", "mf5elrcg" ],
+      "Minimum" : "5",
+      "Maximum" : "5",
+      "isFixedLength" : true,
+      "size" : "5",
+      "shouldSplitIterations" : false,
+      "Step" : 1
+    } ]
+  },
+  "articulation": {
+    "items": [{
+      "label": "my articulation label",
+      "value": "my articulation value",
+      "type": "VTL"
+    }]
+  },
+  "childQuestionnaireRef" : [ ]
+}

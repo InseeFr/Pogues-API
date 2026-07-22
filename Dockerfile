@@ -1,0 +1,20 @@
+FROM eclipse-temurin:25.0.3_9-jre-noble
+
+ENV PATH_TO_JAR=/opt/pogues/pogues-bo.jar
+WORKDIR /opt/pogues
+COPY ./target/*.jar $PATH_TO_JAR
+
+ENV JAVA_TOOL_OPTIONS_DEFAULT \
+    -XX:MaxRAMPercentage=75 \
+    -XX:+UseZGC
+
+ENV JAVA_USER_ID=10001
+ENV JAVA_USER=java
+RUN groupadd -g "$JAVA_USER_ID" "$JAVA_USER" && \
+    useradd -r -l -u "$JAVA_USER_ID" -g "$JAVA_USER" "$JAVA_USER"
+
+USER $JAVA_USER_ID
+
+ENTRYPOINT [ "/bin/sh", "-c", \
+    "export JAVA_TOOL_OPTIONS=\"$JAVA_TOOL_OPTIONS_DEFAULT $JAVA_TOOL_OPTIONS\"; \
+    exec java -jar $PATH_TO_JAR" ]
