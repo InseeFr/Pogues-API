@@ -118,10 +118,8 @@ class PipelineTest {
                     "TargetMode" : [ "CAPI", "CATI", "PAPI", "CAWI" ],
                     "Child" : [ ]
                   } ],
-                  "DataCollection" : [ {
-                    "id" : "TCM",
-                    "uri" : "http://ddi:fr.insee:DataCollection.TCM"
-                  } ],
+                  "DataCollection" : {
+                  },
                   "ComponentGroup" : [ {
                     "id" : "lmynyac5",
                     "Name" : "PAGE_1",

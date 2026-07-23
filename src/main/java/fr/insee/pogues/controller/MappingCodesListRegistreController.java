@@ -7,6 +7,7 @@ import fr.insee.pogues.model.dto.mapping.codes.list.registre.MappingCodesListReg
 import fr.insee.pogues.model.dto.mapping.codes.list.registre.MappingCodesListRegistreResponseDTO;
 import fr.insee.pogues.model.dto.mapping.codes.list.registre.MappingCodesListRegistreUpdateDTO;
 import fr.insee.pogues.service.registrymapping.MappingCodesListRegistryService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/mapping-codeslist")
+@Tag(name = "08. Nomenclature mapping with registry")
 @RequiredArgsConstructor
 public class MappingCodesListRegistreController {
 

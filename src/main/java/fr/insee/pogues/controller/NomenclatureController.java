@@ -30,7 +30,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api")
-@Tag(name = "5. Nomenclature Controller")
+@Tag(name = "07. Nomenclature Controller")
 @Slf4j
 public class NomenclatureController {
 

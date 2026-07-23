@@ -38,7 +38,7 @@ import static fr.insee.pogues.service.validation.steps.IdentifierCheck.QUESTIONN
  */
 @RestController
 @RequestMapping("/api/persistence")
-@Tag(name = "2. Questionnaire Controller")
+@Tag(name = "02. Questionnaire Controller")
 @RequiredArgsConstructor
 @Slf4j
 public class QuestionnaireController {

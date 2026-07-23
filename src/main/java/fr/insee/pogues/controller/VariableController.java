@@ -27,7 +27,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/persistence")
-@Tag(name = "Variable Controller")
+@Tag(name = "11. Variable Controller")
 @Slf4j
 public class VariableController {
 

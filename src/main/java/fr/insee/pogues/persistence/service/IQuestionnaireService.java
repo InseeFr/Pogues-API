@@ -29,4 +29,6 @@ public interface IQuestionnaireService {
 
     void updateQuestionnaire(String id, JsonNode questionnaire) throws Exception;
 
+    void updateQuestionnaire(String id, Questionnaire questionnaire) throws Exception;
+
 }

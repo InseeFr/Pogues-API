@@ -29,7 +29,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/persistence")
-@Tag(name = "Articulation Controller")
+@Tag(name = "09. Articulation Controller")
 @Slf4j
 public class ArticulationController {
 

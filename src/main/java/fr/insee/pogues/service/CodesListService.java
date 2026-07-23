@@ -92,7 +92,7 @@ public class CodesListService {
     public List<String> upsertQuestionnaireCodesList(String questionnaireId, String idCodesList, CodesListDTO codesListDTO) throws Exception {
         Questionnaire questionnaire = retrieveQuestionnaireByQuestionnaireId(questionnaireId);
         List<String> updatedQuestionIds = upsertQuestionnaireCodesList(questionnaire, idCodesList, codesListDTO);
-        updateQuestionnaireInDataBase(questionnaire);
+        questionnaireService.updateQuestionnaire(questionnaireId, questionnaire);
         return updatedQuestionIds;
     }
 
@@ -137,7 +137,7 @@ public class CodesListService {
     public void deleteQuestionnaireCodeList(String questionnaireId, String codesListId) throws Exception {
         Questionnaire questionnaire = retrieveQuestionnaireByQuestionnaireId(questionnaireId);
         deleteQuestionnaireCodeList(questionnaire, codesListId);
-        updateQuestionnaireInDataBase(questionnaire);
+        questionnaireService.updateQuestionnaire(questionnaireId, questionnaire);
     }
 
     private void deleteQuestionnaireCodeList(Questionnaire questionnaire, String codesListId) throws CodesListException {
@@ -155,18 +155,7 @@ public class CodesListService {
         }
     }
 
-    /**
-     * Set the questionnaire last updated date as now and save it in the DB.
-     * @param questionnaire Questionnaire to update
-     * @throws Exception Could not read from or write in the DB
-     * @throws PoguesException 404 questionnaire not found
-     */
-    private void updateQuestionnaireInDataBase(Questionnaire questionnaire) throws Exception {
-        questionnaire.setLastUpdatedDate(DateUtils.getIsoDateFromInstant(Instant.now()));
-        questionnaireService.updateQuestionnaire(
-                questionnaire.getId(),
-                jsonStringtoJsonNode(PoguesSerializer.questionnaireJavaToString(questionnaire)));
-    }
+
 
     private List<String> updateQuestionAndVariablesAccordingToCodesList(Questionnaire questionnaire, String updatedCodeListId) {
         // Retrieve updatedCodeList in questionnaire

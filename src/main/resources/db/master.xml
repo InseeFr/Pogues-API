@@ -14,4 +14,5 @@
     <include file="changelog/200_version_questionnaire.xml" relativeToChangelogFile="true"/>
     <include file="changelog/300_rolling_backup.xml" relativeToChangelogFile="true"/>
     <include file="changelog/400_mapping_codes_list_registre.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/500_ddi_agency.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

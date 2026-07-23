@@ -85,12 +85,12 @@ application:
     # See source code: https://github.com/InseeFr/DDI-Access-Services
     ddi-as:
     # For Series & operations
-    magma:
+    magma-fusion:
 
   external-secure-urls:
   external-secure-urls-with-service-account:
     - ${application.metadata.ddi-as}
-    - ${application.metadata.magma}
+    - ${application.metadata.magma-fusion}
 
 springdoc:
   swagger-ui:
@@ -147,6 +147,9 @@ spring:
 
 
 feature:
+  metadata:
+    magma-client: rest # rest | mock
+    ddias-client: rest # rest | mock
   oidc:
     enabled: false
     auth-server-url: https://auth-server.host/auth

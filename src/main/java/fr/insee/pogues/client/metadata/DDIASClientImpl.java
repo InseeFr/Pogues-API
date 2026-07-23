@@ -6,6 +6,7 @@ import fr.insee.pogues.exception.PoguesException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.net.URI;
 import java.util.List;
 
 @Service
+@ConditionalOnProperty(name = "feature.metadata.ddias-client", havingValue = "rest")
 @Slf4j
 public class DDIASClientImpl implements DDIASClient {
 

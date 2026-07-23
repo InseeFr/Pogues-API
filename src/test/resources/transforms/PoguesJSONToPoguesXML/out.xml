@@ -108,9 +108,7 @@
       <Label>QUESTIONNAIRE_END</Label>
       <TargetMode>CAPI</TargetMode>
     </Child>
-    <DataCollection id="esa-dc-2018" uri="http://ddi:fr.insee:DataCollection.esa-dc-2018">
-      <Name>Enquête sectorielle annuelle 2018</Name>
-    </DataCollection>
+    <DataCollection />
     <ComponentGroup id="l13q62gr">
       <Name>PAGE_1</Name>
       <Label>Components for page 1</Label>

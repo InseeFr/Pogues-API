@@ -89,7 +89,6 @@ public class SurveyRegistryRestClient implements SurveyRegistryClient {
                             }
                             throw new SurveyRegistryException("Error when getting nomenclature: " + response.getStatusCode());
                         })
-
                 .body(new ParameterizedTypeReference<>() {});
 
         if(codesListsMetadata == null)

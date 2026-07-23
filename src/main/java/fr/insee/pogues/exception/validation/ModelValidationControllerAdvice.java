@@ -1,6 +1,7 @@
 package fr.insee.pogues.exception.validation;
 
 import fr.insee.pogues.controller.QuestionnaireController;
+import fr.insee.pogues.controller.QuestionnaireDetailsController;
 import fr.insee.pogues.controller.VisualizeWithURI;
 import fr.insee.pogues.controller.error.ErrorCode;
 import fr.insee.pogues.exception.mapping.codes.list.registre.MappingNotFoundException;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.net.URI;
 import java.util.List;
 
-@RestControllerAdvice(assignableTypes = { QuestionnaireController.class, VisualizeWithURI.class })
+@RestControllerAdvice(assignableTypes = { QuestionnaireController.class, VisualizeWithURI.class, QuestionnaireDetailsController.class})
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ModelValidationControllerAdvice {
 

@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet author="admin (generated)" id="1784534719332-1" failOnError="false">
+        <dropTable tableName="ddi_group"/>
+        <dropTable tableName="ddi_item"/>
+        <createTable tableName="ddi_agency" ifNotExists="true">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR" />
+            <column name="label" type="VARCHAR" />
+        </createTable>
+    </changeSet>
+
+    <changeSet author="admin (generated)" id="1784534719332-2" >
+        <!-- use https://registry.ddialliance.org/Agency at 20/07/2026-->
+        <insert tableName="ddi_agency">
+            <column name="name">int.ddibestpractices</column>
+            <column name="label">DDI Best Practices</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">de.sinus-institut</column>
+            <column name="label">SINUS Markt- und Sozialforschung GmbH</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.census</column>
+            <column name="label">U.S. Census Bureau</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.wchads</column>
+            <column name="label">Wirral Child Health and Development Study</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">dk.dst</column>
+            <column name="label">Statistics Denmark</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.AysherIntel</column>
+            <column name="label">Aysher Intelligence Agency</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">pf.ispf</column>
+            <column name="label">Institut de la statistique de la Polynésie française</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">int.tigre</column>
+            <column name="label">ARENA</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">mn.mmcg</column>
+            <column name="label">Mongolian Marketing Consulting Group</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">ca.logicaloutcomes</column>
+            <column name="label">LogicalOutcomes</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.rit</column>
+            <column name="label">rit</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">int.ethmigsurveydata</column>
+            <column name="label">ETHMIGSURVEYDATA</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">int.ggp</column>
+            <column name="label">Generations and Gender Survey</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.ayshertech</column>
+            <column name="label">AySher Technologies</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">sn.reft-africa</column>
+            <column name="label">REFT Africa, Division for Africa of The REFT Institute, Inc.</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">de.qualiservice</column>
+            <column name="label">Qualiservice</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.traumadatainstitute</column>
+            <column name="label">Trauma Data Institute</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">de.gimmbh</column>
+            <column name="label">Gesellschaft für innovative Marktforschung mbH (GIM mbH)</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">PL.SoliDeo</column>
+            <column name="label">Soli Deo Foundation</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">US.SoliDeo</column>
+            <column name="label">Soli Deo Foundation</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">es.fcentra</column>
+            <column name="label">fcentra</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">de.dezim</column>
+            <column name="label">DeZIM</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">Us.SparkDriver</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">fr.cdsp</column>
+            <column name="label">Sciences Po, Center for Socio-Political Data (CDSP), CNRS</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">GH.C-DAMAA</column>
+            <column name="label">Centre for Data Archiving, Management, Analysis and Advocacy</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.midus</column>
+            <column name="label">Midlife in the U.S.</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">mx.iieg</column>
+            <column name="label">Instituto de Información Estadística y Geográfica de Jalisco</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">fr.inserm</column>
+            <column name="label">Institut National de la Recherche Médicale</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.whitehall2</column>
+            <column name="label">Whitehall II Study, UCL</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">cl.edicioneskimun</column>
+            <column name="label">Ediciones Kimün SpA</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">cl.innovat-ed</column>
+            <column name="label">Organismo Técnico de Capacitación Innovat-ed SpA</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">cl.cncraft</column>
+            <column name="label">CNCraft</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">cl.partner-ed</column>
+            <column name="label">Partner-ed Colaborativa SpA</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">de.maor</column>
+            <column name="label">Maor</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">qa.sesri</column>
+            <column name="label">The Social and Economic Survey Research Institute</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">lt.lida</column>
+            <column name="label">Lithuanian Data Archive for Social Sciences and Humanities (LiDA)</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">au.ada</column>
+            <column name="label">Australian Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">au.ausiriss</column>
+            <column name="label">Integrated Research Infrastructure for the Social Sciences (IRISS)</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.bestias</column>
+            <column name="label">Strand Analytica</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.wls</column>
+            <column name="label">Wisconsin Longitudinal Study</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.cia</column>
+            <column name="label">central intelligence agency</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">cl.kimun</column>
+            <column name="label">Kimün</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.ipums</column>
+            <column name="label">IPUMS</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.bib</column>
+            <column name="label">Born in Bradford</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">ie.cso</column>
+            <column name="label">Central Statistics Office (Ireland)</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">no.nifu</column>
+            <column name="label">Nordic institute for the studies of innovation, research, and education
+                (NIFU)</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.ukds</column>
+            <column name="label">UK Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">de.gesis</column>
+            <column name="label">GESIS - Leibniz Institute for the Social Sciences</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">Ng.notacenterprise</column>
+            <column name="label">Notac Enterprise</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.ciser</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.datapass</column>
+            <column name="label">Harvard U.</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">it.ida-net</column>
+            <column name="label">University of Trento - Dept. of Sociology and Social Research - IDA-NET
+                project</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.nichd</column>
+            <column name="label">BAH</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.idms</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">int.indepth</column>
+            <column name="label">INDEPTH Network</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">au.acspri</column>
+            <column name="label">Australian Consortium for Social and Political Research Incorporated</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">ca.crdcn</column>
+            <column name="label">Canadian Research Data Centre Network</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">de.dipf</column>
+            <column name="label">German Institute for International Educational Research (DIPF)</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">de.iqb</column>
+            <column name="label">German Institute for Educational Progress (IQB)</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">dk.dda</column>
+            <column name="label">Danish Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">fi.fsd</column>
+            <column name="label">Finnish Social Science Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">fr.insee</column>
+            <column name="label">INSEE</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">gr.ekke</column>
+            <column name="label">National Centre for Social Research</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">gr.gsdb</column>
+            <column name="label">National Centre for Social Research</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">int.odaf</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">kh.mipraoc</column>
+            <column name="label">Foundation of IBO HDSS</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">mz.ibo</column>
+            <column name="label">Foundation of IBO HDSS</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">nz.statistics</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">se.snd</column>
+            <column name="label">Swedish National Data Service</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">tz.tazamaproject</column>
+            <column name="label">Foundation of IBO HDSS</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.bls</column>
+            <column name="label">BLS</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.cpanda</column>
+            <column name="label">Cultural Policy &amp; the Arts National Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.colectica</column>
+            <column name="label">Colectica</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">int.highvaluedata</column>
+            <column name="label">High Value Data Network</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">nz.govt</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">lt.lita</column>
+            <column name="label">Lithuanian Data Archive for Social Sciences and Humanities (LIDA)</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">th.uc-utcc</column>
+            <column name="label">UC-UTCC Research Center</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">tr.turkstat</column>
+            <column name="label">TURKSTAT</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.odaf</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">ca.odesi</column>
+            <column name="label">ODESI</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">nl.centerdata</column>
+            <column name="label">CentERdata</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.metadatatechnology</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.mtna</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.metadatatechnology</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.j-pal</column>
+            <column name="label">The Abdul Latif Jameel Poverty Action Lab</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.ucl</column>
+            <column name="label">University College London</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.lha</column>
+            <column name="label">MRC Unit For Lifelong Health &amp; Ageing</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">au.abs</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">dee.test</column>
+            <column name="label">GESIS - Leibniz Institute for the Social Sciences</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.dan</column>
+            <column name="label">Dan Smith</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.algenta</column>
+            <column name="label">Algenta Technologies</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.cls</column>
+            <column name="label">UCL Institute of Education</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.ukdataarchive</column>
+            <column name="label">UK Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.sqb</column>
+            <column name="label">UK Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.securedataservice</column>
+            <column name="label">UK Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.sds</column>
+            <column name="label">UK Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.relu-dss</column>
+            <column name="label">UK Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.hds</column>
+            <column name="label">UK Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.esds</column>
+            <column name="label">UK Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.dataservice</column>
+            <column name="label">UK Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.dataarchive</column>
+            <column name="label">UK Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.data-service</column>
+            <column name="label">UK Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.data-archive</column>
+            <column name="label">UK Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.census</column>
+            <column name="label">UK Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.icpsr</column>
+            <column name="label">ICPSR</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">int.gsim</column>
+            <column name="label">UNECE</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.ewb-src-isr-umich</column>
+            <column name="label">Education &amp; Well Being</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">si.adp</column>
+            <column name="label">Social Science Data Archives</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.eudl</column>
+            <column name="label">Edinburgh University Data Library</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.ipsr</column>
+            <column name="label">Institute for Policy &amp; Social Research, Univ. of Kansas</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">de.unibi</column>
+            <column name="label">University Bielefeld</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">ro.roda</column>
+            <column name="label">Romanian Social Data Archive, University of Bucharest</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.alphanetworklshtm</column>
+            <column name="label">ALPHA, London School of Hygiene and Tropical Medicine</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.mrcleu-uos</column>
+            <column name="label">MRC LEU</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.soundrocket</column>
+            <column name="label">SoundRocket</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">tw.srda</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.nd</column>
+            <column name="label">University of Notre Dame</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">ca.upei</column>
+            <column name="label">University of Prince Edward Island</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">int.esseric</column>
+            <column name="label">ESS ERIC</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.iser</column>
+            <column name="label">ISER</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.farr</column>
+            <column name="label">Centre for Health Informatics, University of Manchester</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">au.atsida</column>
+            <column name="label">University of Technology Sydney</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">cl.explora-it</column>
+            <column name="label">Explora IT</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">in.inclentrust</column>
+            <column name="label">The INCLEN Trust International</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">it.unidata</column>
+            <column name="label">UniData - Bicocca Data Archive</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.addhealth</column>
+            <column name="label">CPC- Add Health Project</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.crowston</column>
+            <column name="label">Syracuse University</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">ca.statcan</column>
+            <column name="label">Statistics Canada</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">tz.tazamanimrmwanza</column>
+            <column name="label">TAZAMA project National Institute for Medical Research, Mwanza, Tanzania</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.childtraumadata</column>
+            <column name="label">Children's Hospital of Philadelphia</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">int.ddi</column>
+            <column name="label">ICPSR</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">swe.norrbotten</column>
+            <column name="label">Norrbotten County Council</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">no.nsd</column>
+            <column name="label">NSD - Norwegian Centre for Research Data</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.genscot</column>
+            <column name="label">Generation Scotland</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">sa.1in10dataset</column>
+            <column name="label">Ahpu</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.alspac</column>
+            <column name="label">ALSPAC</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">uk.closer</column>
+            <column name="label">UCL Institute of Education</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">us.mpc</column>
+            <column name="label">Minnesota Population Center</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">int.cessda</column>
+            <column name="label">int.cessda</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">int.dataartifex</column>
+            <column name="label">Data Artifex Project</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">int.codata</column>
+            <column name="label">CODATA</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">US.CENTRALINTELLIGENCEAGENCY</column>
+            <column name="label">CIA</column>
+        </insert>
+        <insert tableName="ddi_agency">
+            <column name="name">vn.vimo</column>
+            <column name="label">Test Agency thong ke</column>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

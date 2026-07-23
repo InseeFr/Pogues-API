@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/persistence")
-@Tag(name = "6. Version of questionnaire Controller")
+@Tag(name = "03. Version of questionnaire Controller")
 @Slf4j
 public class VersionController {
 

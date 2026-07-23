@@ -27,7 +27,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/persistence")
-@Tag(name = "4. CodesList Controller")
+@Tag(name = "06. CodesList Controller")
 @Slf4j
 public class CodesListController {
 

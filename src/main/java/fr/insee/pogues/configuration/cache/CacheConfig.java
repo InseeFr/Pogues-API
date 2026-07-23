@@ -45,27 +45,11 @@ public class CacheConfig {
     protected CaffeineCache serieCache() {
         return new CaffeineCache(CacheName.SERIE,
                 Caffeine.newBuilder()
-                        .maximumSize(100)
+                        .maximumSize(1000)
                         .expireAfterWrite(magmaCacheRetentionTime, TimeUnit.DAYS)
                         .build());
     }
 
-    @Bean
-    protected CaffeineCache operationsCache() {
-        return new CaffeineCache(CacheName.OPERATIONS,
-                Caffeine.newBuilder()
-                        .maximumSize(10000)
-                        .expireAfterWrite(magmaCacheRetentionTime, TimeUnit.DAYS)
-                        .build());
-    }
-    @Bean
-    protected CaffeineCache operationCache() {
-        return new CaffeineCache(CacheName.OPERATION,
-                Caffeine.newBuilder()
-                        .maximumSize(10000)
-                        .expireAfterWrite(magmaCacheRetentionTime, TimeUnit.DAYS)
-                        .build());
-    }
 
     @Bean
     protected CaffeineCache stampsCache() {

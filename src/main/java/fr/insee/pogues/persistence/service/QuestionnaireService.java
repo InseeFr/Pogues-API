@@ -10,6 +10,7 @@ import fr.insee.pogues.persistence.exceptions.NonUniqueResultException;
 import fr.insee.pogues.persistence.repository.QuestionnaireRepository;
 import fr.insee.pogues.service.modelcleaning.ModelCleaningService;
 import fr.insee.pogues.transforms.visualize.composition.QuestionnaireComposition;
+import fr.insee.pogues.utils.DateUtils;
 import fr.insee.pogues.utils.PoguesDeserializer;
 import fr.insee.pogues.utils.PoguesSerializer;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -167,6 +169,13 @@ public class QuestionnaireService implements IQuestionnaireService{
         } catch (EntityNotFoundException e) {
             throw new PoguesException(404, "Not found", e.getMessage());
         }
+    }
+
+    @Override
+    public void updateQuestionnaire(String id, Questionnaire questionnaire) throws Exception {
+        questionnaire.setLastUpdatedDate(DateUtils.getIsoDateFromInstant(Instant.now()));
+        JsonNode questionnaireJsonNode = jsonStringtoJsonNode(PoguesSerializer.questionnaireJavaToString(questionnaire));
+        this.updateQuestionnaire(id, questionnaireJsonNode);
     }
 
     public Questionnaire deReference(JsonNode jsonQuestionnaire) throws Exception {

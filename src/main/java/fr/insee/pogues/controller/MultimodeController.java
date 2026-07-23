@@ -26,7 +26,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/api/persistence")
-@Tag(name = "Multimode Controller")
+@Tag(name = "10. Multimode Controller")
 @Slf4j
 public class MultimodeController {
 

@@ -17,7 +17,7 @@ class ModelValidationServiceTest {
                 {
                   "id": "fooquestionnaire"
                 }"""; // "valid" according to the validation service
-        ByteArrayOutputStream outputStream = new ModelValidationService().transform(
+        ByteArrayOutputStream outputStream = new ModelValidationService(null, null).transform(
                 new ByteArrayInputStream(validPoguesJson.getBytes()), null, null);
         assertEquals(validPoguesJson, outputStream.toString());
     }

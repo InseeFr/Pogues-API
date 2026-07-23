@@ -4,6 +4,8 @@ import fr.insee.pogues.exception.validation.ModelValidationException;
 import fr.insee.pogues.model.Questionnaire;
 import fr.insee.pogues.service.validation.steps.IdentifierCheck;
 import fr.insee.pogues.service.validation.steps.MandatoryCodeListMCQCheck;
+import fr.insee.pogues.service.validation.steps.QuestionnaireDDIAgencyCheck;
+import fr.insee.pogues.service.validation.steps.QuestionnaireDataCollectionCheck;
 import fr.insee.pogues.transforms.visualize.ModelTransformer;
 import fr.insee.pogues.utils.PoguesDeserializer;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -18,15 +21,30 @@ import java.util.Map;
 @Service
 public class ModelValidationService implements ModelTransformer {
 
+    private final List<ValidationStep> validationSteps;
+
+    private List<ValidationStep> buildValidationSteps(
+            ValidationStep ddiAgencyCheck,
+            ValidationStep dataCollectionCheck){
+
+        List<ValidationStep> steps = new ArrayList<>(List.of(
+                new IdentifierCheck(),
+                new MandatoryCodeListMCQCheck()));
+
+        if(ddiAgencyCheck != null) steps.add(ddiAgencyCheck);
+        if(dataCollectionCheck != null) steps.add(dataCollectionCheck);
+        return steps;
+    }
+
+    public ModelValidationService(QuestionnaireDDIAgencyCheck ddiAgencyCheck, QuestionnaireDataCollectionCheck dataCollectionCheck) {
+        this.validationSteps = buildValidationSteps(ddiAgencyCheck, dataCollectionCheck);
+    }
+
     /**
      * Checks if there is any issue in the questionnaire (e.g. an invalid question property).
      * @throws ModelValidationException if there is.
      */
     public void validate(Questionnaire questionnaire, String poguesId) throws ModelValidationException {
-        List<ValidationStep> validationSteps = List.of(
-                new IdentifierCheck(),
-                new MandatoryCodeListMCQCheck()
-        );
         List<String> errors = validationSteps.stream()
                 .map(validationStep -> validationStep.validate(questionnaire, poguesId))
                 .filter(validationResult -> !validationResult.isValid())
@@ -47,5 +65,4 @@ public class ModelValidationService implements ModelTransformer {
         outputStream.write(content);
         return outputStream;
     }
-
 }

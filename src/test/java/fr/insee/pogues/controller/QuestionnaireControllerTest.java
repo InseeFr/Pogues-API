@@ -24,7 +24,9 @@ class QuestionnaireControllerTest {
     void beforeEach() {
         ApplicationProperties fooProperties = new ApplicationProperties("localhost", "http", null, null, null, null, null, null);
         questionnaireServiceStub = new QuestionnaireServiceStub();
-        questionnaireController = new QuestionnaireController(fooProperties, questionnaireServiceStub, null, null, null, null, new ModelValidationService());
+        questionnaireController = new QuestionnaireController(
+                fooProperties, questionnaireServiceStub, null, null, null, null,
+                new ModelValidationService(null, null));
     }
 
     @Test

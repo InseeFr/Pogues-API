@@ -1,16 +1,20 @@
 package fr.insee.pogues.service.stub;
 
 import fr.insee.pogues.exception.PoguesException;
+import fr.insee.pogues.exception.PoguesSerializationException;
 import fr.insee.pogues.exception.questionnaire.QuestionnaireNotFoundException;
 import fr.insee.pogues.model.Questionnaire;
 import fr.insee.pogues.persistence.service.IQuestionnaireService;
 import fr.insee.pogues.utils.PoguesDeserializer;
+import fr.insee.pogues.utils.PoguesSerializer;
 import lombok.Getter;
 import tools.jackson.databind.JsonNode;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static fr.insee.pogues.utils.json.JSONFunctions.jsonStringtoJsonNode;
 
 @Getter
 public class QuestionnaireServiceStub implements IQuestionnaireService {
@@ -88,5 +92,14 @@ public class QuestionnaireServiceStub implements IQuestionnaireService {
             throw new PoguesException(404, "Not found", "");
         }
         questionnaires.put(id, questionnaire);
+    }
+
+    @Override
+    public void updateQuestionnaire(String id, Questionnaire questionnaire) throws PoguesException, PoguesSerializationException {
+        if (null == questionnaires.get(id)) {
+            throw new PoguesException(404, "Not found", "");
+        }
+        questionnaires.put(id, jsonStringtoJsonNode(PoguesSerializer.questionnaireJavaToString(questionnaire)));
+
     }
 }

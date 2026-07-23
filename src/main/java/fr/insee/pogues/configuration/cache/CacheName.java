@@ -9,8 +9,6 @@ public class CacheName {
     public static final String UNITS = "units";
     public static final String SERIES = "series";
     public static final String SERIE = "serie";
-    public static final String OPERATIONS = "operations";
-    public static final String OPERATION = "operation";
 
     public static final String STAMPS = "stamps";
 }

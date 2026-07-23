@@ -11,23 +11,35 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Configuration
 @AllArgsConstructor
-public class SurveyRegistryApiConfig {
+public class ClientApiConfig {
 
     private AuthenticationHelper authenticationHelper;
+
+    public static String buildBaseUrl(String host){
+        if(host == null) return "/";
+        return UriComponentsBuilder.fromUriString(host)
+                .path("/")
+                .build()
+                .toUriString();
+    }
 
     @Bean("surveyRegistryApiRestClient")
     public RestClient surveyRegistryApiRestClient(
             @Value("${application.survey-registry.host}") String registryHost
     ) {
-        // ensure that baseUrl start with /
-        String baseUrl = UriComponentsBuilder.fromUriString(registryHost)
-                .path("/")
-                .build()
-                .toUriString();
 
         return RestClient.builder()
-                .baseUrl(baseUrl)
+                .baseUrl(buildBaseUrl(registryHost))
                 .requestInterceptor(new AuthInterceptor(authenticationHelper))
+                .build();
+    }
+
+    @Bean("magmaFusionApiRestClient")
+    public RestClient magmaFusionApiRestClient(
+            @Value("${application.metadata.magma-fusion}") String magmaFusionHost
+    ) {
+        return RestClient.builder()
+                .baseUrl(buildBaseUrl(magmaFusionHost))
                 .build();
     }
 
