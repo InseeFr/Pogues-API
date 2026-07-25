@@ -76,7 +76,6 @@ public class MetadataServiceImpl implements MetadataService {
                     serie.seriesId(),
                     serie.uri(),
                     findFrLabel(serie.label()),
-                    null,
                     null
             );
             seriesResult.add(serieDto);
@@ -93,8 +92,7 @@ public class MetadataServiceImpl implements MetadataService {
                 serieFromRmes.seriesId(),
                 serieFromRmes.uri(),
                 findFrLabel(serieFromRmes.label()),
-                findFrLabel(serieFromRmes.altLabel()),
-                serieFromRmes.operations().stream().map(this::toOperationDto).toList());
+                findFrLabel(serieFromRmes.altLabel()));
     }
 
     @Override

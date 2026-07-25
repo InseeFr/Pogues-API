@@ -37,13 +37,7 @@ public class MagmaFusionMockClient implements MagmaFusionClient {
                 mockSerie.label(),
                 List.of(
                         new Label("SIMPLE_SERIE", "fr"),
-                        new Label("SIMPLE_SERIE", "en")),
-                List.of(
-                        new Operation("s11","http://id.insee.fr/operations/operation/s11",
-                                List.of(
-                                        new Label("Operation de la série 'Simple série'", "fr"),
-                                        new Label("Operation of the serie 'Simple serie'", "en")))
-                )
+                        new Label("SIMPLE_SERIE", "en"))
         );
     }
 }

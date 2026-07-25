@@ -43,7 +43,7 @@ public class QuestionnaireDataCollectionCheckTest {
         questionnaire.setDataCollection(dataCollection);
 
         when(metadataService.getAllSeries())
-                .thenReturn(List.of(new SerieDto("valid-serie-id", null,null, null,null)));
+                .thenReturn(List.of(new SerieDto("valid-serie-id", null,null, null)));
 
         ValidationResult validationResult = dataCollectionCheck.validate(questionnaire);
         assertTrue(validationResult.isValid());
@@ -61,7 +61,7 @@ public class QuestionnaireDataCollectionCheckTest {
         questionnaire.setDataCollection(dataCollection);
 
         when(metadataService.getAllSeries())
-                .thenReturn(List.of(new SerieDto("valid-serie-id", null,null, null,null)));
+                .thenReturn(List.of(new SerieDto("valid-serie-id", null,null, null)));
 
         ValidationResult validationResult = dataCollectionCheck.validate(questionnaire);
         assertFalse(validationResult.isValid());
@@ -79,7 +79,7 @@ public class QuestionnaireDataCollectionCheckTest {
         noSerie.setDataCollection(dataCollection);
 
         when(metadataService.getAllSeries())
-                .thenReturn(List.of(new SerieDto("valid-serie-id", null,null, null,null)));
+                .thenReturn(List.of(new SerieDto("valid-serie-id", null,null, null)));
 
         assertTrue(dataCollectionCheck.validate(noDataCollection).isValid());
         assertTrue(dataCollectionCheck.validate(noSerie).isValid());

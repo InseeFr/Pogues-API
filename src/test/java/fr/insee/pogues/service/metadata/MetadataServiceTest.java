@@ -98,7 +98,6 @@ public class MetadataServiceTest {
         assertEquals("uri:s1", result.getFirst().uri());
         assertEquals("Population française", result.getFirst().label());
         assertNull(result.get(0).altLabel());
-        assertNull(result.get(0).operations());
 
         assertEquals("S2", result.get(1).id());
         assertEquals("Logements", result.get(1).label());
@@ -110,20 +109,11 @@ public class MetadataServiceTest {
     @DisplayName("Should return complete serie details")
     void getSerieDetailsById_success() {
 
-        Operation operation = new Operation(
-                "O1",
-                "uri:o1",
-                List.of(
-                        new Label("Recensement", "fr")
-                )
-        );
-
         SerieMetadata metadata = new SerieMetadata(
                 "S1",
                 "uri:s1",
                 List.of(new Label("Population","fr")),
-                List.of(new Label("POP", "fr")),
-                List.of(operation)
+                List.of(new Label("POP", "fr"))
         );
 
         when(magmaFusionClient.getSerieById("S1"))
@@ -136,14 +126,6 @@ public class MetadataServiceTest {
         assertEquals("Population", result.label());
         assertEquals("POP", result.altLabel());
 
-        assertEquals(1, result.operations().size());
-
-        OperationDto operationDto = result.operations().getFirst();
-
-        assertEquals("O1", operationDto.id());
-        assertEquals("uri:o1", operationDto.uri());
-        assertEquals("Recensement", operationDto.label());
-
         verify(magmaFusionClient).getSerieById("S1");
     }
 
@@ -155,7 +137,6 @@ public class MetadataServiceTest {
                 "S1",
                 "uri:s1",
                 List.of(new Label("en", "Population")),
-                List.of(),
                 List.of()
         );
 
@@ -166,7 +147,6 @@ public class MetadataServiceTest {
 
         assertEquals("", result.label());
         assertEquals("", result.altLabel());
-        assertTrue(result.operations().isEmpty());
     }
 
     @Test

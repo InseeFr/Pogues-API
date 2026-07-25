@@ -6,7 +6,6 @@ public record SerieMetadata(
         String seriesId,
         String uri,
         List<Label> label,
-        List<Label> altLabel,
-        List<Operation> operations
+        List<Label> altLabel
 ) {
 }

@@ -9,7 +9,6 @@ public record SerieDto(
         String id,
         String uri,
         String label,
-        String altLabel,
-        List<OperationDto> operations
+        String altLabel
 ) {
 }
