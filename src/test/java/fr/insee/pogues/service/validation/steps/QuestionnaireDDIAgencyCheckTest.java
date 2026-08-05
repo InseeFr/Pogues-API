@@ -33,7 +33,7 @@ public class QuestionnaireDDIAgencyCheckTest {
         Questionnaire questionnaire = new Questionnaire();
         questionnaire.setAgency("fr.insee");
 
-        when(metadataService.existAgencyById("fr.insee"))
+        when(metadataService.existAgencyMatchingById("fr.insee"))
                 .thenReturn(true);
 
         ValidationResult validationResult = ddiAgencyCheck.validate(questionnaire);
@@ -47,7 +47,7 @@ public class QuestionnaireDDIAgencyCheckTest {
         Questionnaire questionnaire = new Questionnaire();
         questionnaire.setAgency("fr.insee");
 
-        when(metadataService.existAgencyById("fr.insee"))
+        when(metadataService.existAgencyMatchingById("fr.insee"))
                 .thenReturn(false);
 
         ValidationResult validationResult = ddiAgencyCheck.validate(questionnaire);

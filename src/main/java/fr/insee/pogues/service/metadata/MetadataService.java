@@ -14,5 +14,5 @@ public interface MetadataService {
     List<AgencyDto> getAgencies(String countryFilter);
     AgencyDto createAgency(AgencyDto agency);
     Boolean deleteAgencyById(String id);
-    Boolean existAgencyById(String id);
+    Boolean existAgencyMatchingById(String id);
 }

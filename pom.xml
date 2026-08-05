@@ -18,7 +18,7 @@
 	<properties>
 		<!-- Project metadata properties -->
 		<final.asset.name>pogues-bo</final.asset.name>
-		<revision>5.0.2</revision> <!-- Version is managed by git tags -->
+		<revision>5.0.3</revision> <!-- Version is managed by git tags -->
 
 		<!-- Project build properties -->
 		<java.version>25</java.version>

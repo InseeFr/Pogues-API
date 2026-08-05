@@ -19,7 +19,7 @@ public class QuestionnaireDDIAgencyCheck implements ValidationStep {
     }
 
     public ValidationResult validateAgency(String agency){
-        if(agency != null && Boolean.FALSE.equals(metadataService.existAgencyById(agency))){
+        if(agency != null && Boolean.FALSE.equals(metadataService.existAgencyMatchingById(agency))){
             return ValidationResult.invalid(String.format("DDI Agency \"%s\" doesn't exist", agency));
         }
         return ValidationResult.valid();

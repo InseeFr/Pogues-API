@@ -131,7 +131,7 @@ public class MetadataServiceImpl implements MetadataService {
     }
 
     @Override
-    public Boolean existAgencyById(String id) {
-        return ddiAgencyRepository.existsByName(id);
+    public Boolean existAgencyMatchingById(String id) {
+        return ddiAgencyRepository.existsMatchingDomain(id);
     }
 }
