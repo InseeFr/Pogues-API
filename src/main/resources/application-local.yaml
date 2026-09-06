@@ -1,0 +1,33 @@
+# Local full-stack: no Keycloak, mocked metadata, embedded Postgres (no Docker).
+# Start with: mvn spring-boot:run (or the Pogues main class from the IDE)
+# Port 8081 avoids macOS AirPlay on 5000 and Keycloak on 8080.
+
+server:
+  port: 8081
+
+spring:
+  liquibase:
+    enabled: true
+    contexts: prod
+
+feature:
+  oidc:
+    enabled: false
+  metadata:
+    magma-client: mock
+    ddias-client: mock
+  anonymous-user:
+    stamp: FAKEPERMISSION
+    name: Guybrush
+    id: guybrush
+  cache:
+    enabled: false
+
+application:
+  corsOrigins:
+    - http://localhost:5173
+    - http://127.0.0.1:5173
+    - http://localhost:4173
+    - http://localhost:5145
+  local:
+    questionnaires-directory: local-questionnaires
