@@ -1,0 +1,128 @@
+{
+  "owner": "FAKEPERMISSION",
+  "final": false,
+  "id": "qdemo1",
+  "Label": [
+    "Questionnaire démo (local)"
+  ],
+  "Name": "QDEMO1",
+  "lastUpdatedDate": "2026-09-06T08:00:00.000Z",
+  "DataCollection": [],
+  "genericName": "QUESTIONNAIRE",
+  "ComponentGroup": [],
+  "agency": "fr.insee",
+  "TargetMode": [
+    "CAPI",
+    "CAWI"
+  ],
+  "flowLogic": "FILTER",
+  "formulasLanguage": "VTL",
+  "childQuestionnaireRef": [],
+  "Child": [
+    {
+      "id": "qdemo1seq1",
+      "depth": 1,
+      "Name": "SEQDEMO",
+      "Label": [
+        "Séquence démo"
+      ],
+      "Declaration": [],
+      "Control": [],
+      "FlowControl": [],
+      "TargetMode": [
+        "CAPI",
+        "CAWI"
+      ],
+      "type": "SequenceType",
+      "genericName": "MODULE",
+      "Child": [
+        {
+          "id": "qdemo1q1",
+          "depth": 2,
+          "Name": "DEMOVAR",
+          "Label": [
+            "Quelle est votre réponse démo ?"
+          ],
+          "Declaration": [],
+          "Control": [],
+          "FlowControl": [],
+          "TargetMode": [
+            "CAPI",
+            "CAWI"
+          ],
+          "type": "QuestionType",
+          "questionType": "SIMPLE",
+          "ClarificationQuestion": [],
+          "Response": [
+            {
+              "id": "qdemo1resp1",
+              "Datatype": {
+                "typeName": "TEXT",
+                "type": "TextDatatypeType",
+                "MaxLength": 50,
+                "Pattern": ""
+              },
+              "CollectedVariableReference": "qdemo1var1",
+              "mandatory": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "idendquest",
+      "depth": 1,
+      "Name": "QUESTIONNAIRE_END",
+      "Label": [
+        "QUESTIONNAIRE_END"
+      ],
+      "Declaration": [],
+      "genericName": "MODULE",
+      "Control": [],
+      "FlowControl": [],
+      "type": "SequenceType",
+      "Child": [],
+      "TargetMode": [
+        "CAPI",
+        "CAWI"
+      ]
+    }
+  ],
+  "CodeLists": {
+    "CodeList": [
+      {
+        "id": "qdemo1cl1",
+        "Label": "Liste démo",
+        "Code": [
+          {
+            "Label": "Oui",
+            "Value": "1",
+            "Parent": ""
+          },
+          {
+            "Label": "Non",
+            "Value": "2",
+            "Parent": ""
+          }
+        ]
+      }
+    ]
+  },
+  "Variables": {
+    "Variable": [
+      {
+        "id": "qdemo1var1",
+        "Name": "DEMOVAR",
+        "Label": "Variable démo",
+        "type": "CollectedVariableType",
+        "Datatype": {
+          "typeName": "TEXT",
+          "type": "TextDatatypeType",
+          "MaxLength": 50,
+          "Pattern": ""
+        }
+      }
+    ]
+  },
+  "FlowControl": []
+}

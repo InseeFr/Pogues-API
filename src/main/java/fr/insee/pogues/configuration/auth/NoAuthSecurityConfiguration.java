@@ -3,6 +3,7 @@ package fr.insee.pogues.configuration.auth;
 
 import fr.insee.pogues.configuration.auth.user.User;
 import fr.insee.pogues.configuration.auth.user.UserProvider;
+import fr.insee.pogues.configuration.properties.AnonymousUserProperties;
 import fr.insee.pogues.configuration.properties.ApplicationProperties;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,6 +22,7 @@ import org.springframework.security.web.header.writers.XXssProtectionHeaderWrite
 @ConditionalOnProperty(name = "feature.oidc.enabled", havingValue = "false")
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @AllArgsConstructor
 public class NoAuthSecurityConfiguration {
     private final PublicSecurityFilterChain publicSecurityFilterChainConfiguration;
@@ -60,7 +63,7 @@ public class NoAuthSecurityConfiguration {
     }
 
     @Bean
-    public UserProvider getUserProvider() {
-        return auth-> new User();
+    public UserProvider getUserProvider(AnonymousUserProperties anonymousUser) {
+        return auth -> new User(anonymousUser.stamp(), anonymousUser.name(), anonymousUser.id());
     }
 }

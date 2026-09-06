@@ -16,3 +16,5 @@ WebContent/*.map
 WebContent/*.js
 /bin/
 src/main/resources/local.application.yaml
+.local-postgres/
+.DS_Store

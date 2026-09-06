@@ -28,7 +28,31 @@ public class Pogues extends SpringBootServletInitializer {
 	}
 
 	public static void main(String[] args) {
+		if (shouldDefaultToLocalProfile()) {
+			System.setProperty("spring.profiles.default", "local");
+			log.info("No Spring profile specified, using 'local'");
+		}
 		configureApplicationBuilder(new SpringApplicationBuilder()).build().run(args);
+	}
+
+	/**
+	 * IDE / {@code mvn spring-boot:run} put {@code target/classes} on the classpath.
+	 * A packaged jar does not, so production is left untouched.
+	 */
+	static boolean shouldDefaultToLocalProfile() {
+		if (hasText(System.getenv("SPRING_PROFILES_ACTIVE"))
+				|| hasText(System.getProperty("spring.profiles.active"))
+				|| hasText(System.getProperty("spring.profiles.default"))) {
+			return false;
+		}
+		String classpath = System.getProperty("java.class.path", "");
+		return classpath.contains("target/classes")
+				|| classpath.contains("out/production")
+				|| classpath.contains("out\\production");
+	}
+
+	private static boolean hasText(String value) {
+		return value != null && !value.isBlank();
 	}
 
 	@PostConstruct

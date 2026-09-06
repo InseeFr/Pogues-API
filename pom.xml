@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.1.0</version>
+		<version>4.1.1</version>
 		<relativePath/>
 	</parent>
 
@@ -22,22 +22,25 @@
 
 		<!-- Project build properties -->
 		<java.version>25</java.version>
+		<spring-boot.run.profiles>local</spring-boot.run.profiles>
 		<argLine>-Xms256m -Xmx512m -ea -Dfile.encoding=UTF-8</argLine>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!-- !!! Version properties overridden from Spring Boot !!! -->
-		<tomcat.version>11.0.22</tomcat.version>
+		<tomcat.version>11.0.25</tomcat.version>
 <!--		<jackson-2-bom.version>2.21.4</jackson-2-bom.version>-->
 <!--		<jackson-bom.version>3.1.4</jackson-bom.version>-->
 
 		<!-- Version properties not managed by Spring Boot -->
 		<pogues-model.version>2.1.0</pogues-model.version>
 		<fop.version>2.11</fop.version>
-		<springdoc-openapi-ui.version>3.0.3</springdoc-openapi-ui.version>
+		<springdoc-openapi-ui.version>3.1.0</springdoc-openapi-ui.version>
 		<jacoco.version>0.8.15</jacoco.version>
 		<saxon.version>12.10</saxon.version>
-		<netty.version>4.2.16.Final</netty.version>
-		<postgresql.version>42.7.12</postgresql.version>
+		<netty.version>4.2.17.Final</netty.version>
+		<postgresql.version>42.7.13</postgresql.version>
+		<embedded-postgres.version>2.2.2</embedded-postgres.version>
+		<embedded-postgres-binaries.version>16.15.0</embedded-postgres-binaries.version>
 
 		<!-- Sonar properties -->
 		<sonar.core.codeCoveragePlugin>jacoco</sonar.core.codeCoveragePlugin>
@@ -45,6 +48,18 @@
 		<sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 		<sonar.language>java</sonar.language>
 	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.zonky.test.postgres</groupId>
+				<artifactId>embedded-postgres-binaries-bom</artifactId>
+				<version>${embedded-postgres-binaries.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<repositories>
 		<!-- Maven central snapshot repository -->
@@ -112,6 +127,29 @@
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.zonky.test</groupId>
+			<artifactId>embedded-postgres</artifactId>
+			<version>${embedded-postgres.version}</version>
+			<optional>true</optional>
+		</dependency>
+		<!-- embedded-postgres already ships amd64 for Windows, macOS Intel and Linux.
+		     These two add ARM: Apple Silicon and Linux aarch64. -->
+		<dependency>
+			<groupId>io.zonky.test.postgres</groupId>
+			<artifactId>embedded-postgres-binaries-darwin-arm64v8</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>io.zonky.test.postgres</groupId>
+			<artifactId>embedded-postgres-binaries-linux-arm64v8</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.liquibase</groupId>
@@ -240,6 +278,12 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<executions>
 					<execution>
+						<id>repackage</id>
+						<configuration>
+							<excludeGroupIds>io.zonky.test,io.zonky.test.postgres</excludeGroupIds>
+						</configuration>
+					</execution>
+					<execution>
 						<id>build-info</id>
 						<goals>
 							<goal>build-info</goal>
@@ -270,5 +314,14 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>local</id>
+			<properties>
+				<spring-boot.run.profiles>local</spring-boot.run.profiles>
+			</properties>
+		</profile>
+	</profiles>
 
 </project>
