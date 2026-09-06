@@ -27,6 +27,8 @@ application:
   stamp:
     restricted: ''
   corsOrigins: '*'
+  local:
+    questionnaires-directory: local-questionnaires
 
   pogues-model:
     version: @pogues-model.version@
@@ -150,6 +152,10 @@ feature:
   metadata:
     magma-client: rest # rest | mock
     ddias-client: rest # rest | mock
+  anonymous-user:
+    stamp: default
+    name: Guest
+    id: guest
   oidc:
     enabled: false
     auth-server-url: https://auth-server.host/auth
