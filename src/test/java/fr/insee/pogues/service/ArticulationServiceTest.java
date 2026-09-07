@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.JsonNode;
 
+import java.time.Clock;
 import java.util.List;
 
 import static fr.insee.pogues.utils.Utils.loadQuestionnaireFromResources;
@@ -35,8 +36,9 @@ class ArticulationServiceTest {
 
     @BeforeEach
     void init() {
+        TimeService timeService = new TimeService(Clock.systemUTC());
         questionnaireService = new QuestionnaireServiceStub();
-        articulationService = new ArticulationService(questionnaireService, versionService);
+        articulationService = new ArticulationService(timeService, questionnaireService, versionService);
     }
 
     @Test

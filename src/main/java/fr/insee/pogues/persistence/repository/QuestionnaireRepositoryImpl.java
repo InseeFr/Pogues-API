@@ -49,7 +49,7 @@ public class QuestionnaireRepositoryImpl implements QuestionnaireRepository {
 	 * @return the questionnaires list Map<String,String>, key : the id of the
 	 *         questionnaire, value : the JSON description of the questionnaire
 	 */
-	public List<JsonNode> getQuestionnaires() throws Exception {
+	public List<JsonNode> getQuestionnaires() {
 		List<PGobject> data = jdbcTemplate.queryForList("SELECT data FROM pogues", PGobject.class);
 		return pgToJSON(data);
 	}
@@ -60,7 +60,7 @@ public class QuestionnaireRepositoryImpl implements QuestionnaireRepository {
 	 * @param id id of the questionnaire
 	 * @return the JSON description of the questionnaire
 	 */
-	public JsonNode getQuestionnaireByID(String id) throws Exception {
+	public JsonNode getQuestionnaireByID(String id) {
 		try {
 			String qString = "SELECT data FROM pogues WHERE id=?";
 			PGobject q = jdbcTemplate.queryForObject(qString, PGobject.class, id);
@@ -148,7 +148,7 @@ public class QuestionnaireRepositoryImpl implements QuestionnaireRepository {
 	 * @param ids list of questionnaire ids to fetch
 	 * @return a Map of questionnaires keyed by questionnaire id
 	 */
-	public Map<String, JsonNode> getQuestionnairesByIds(List<String> ids) throws Exception {
+	public Map<String, JsonNode> getQuestionnairesByIds(List<String> ids) {
 		if (ids.isEmpty()) {
 			return new HashMap<>();
 		}

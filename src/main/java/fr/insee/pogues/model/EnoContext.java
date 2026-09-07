@@ -12,12 +12,6 @@ import lombok.Getter;
 @Getter
 public enum EnoContext {
 
-    /**
-     * @deprecated The default context should not be used anymore. If a generation doesn't need context,
-     * simply don't provide a context in the Eno request. */
-    @Deprecated
-    DEFAULT("default"),
-
     /** Eno "business" generation context. */
     BUSINESS("business"),
 

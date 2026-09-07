@@ -1,6 +1,9 @@
 package fr.insee.pogues.persistence.service;
 
 import fr.insee.pogues.configuration.auth.security.restrictions.StampsRestrictionsService;
+import fr.insee.pogues.domain.entity.db.QuestionnaireEntity;
+import fr.insee.pogues.exception.PoguesDeserializationException;
+import fr.insee.pogues.exception.questionnaire.composition.DeReferencingException;
 import fr.insee.pogues.exception.questionnaire.composition.NullReferenceException;
 import fr.insee.pogues.exception.PoguesException;
 import fr.insee.pogues.exception.questionnaire.QuestionnaireNotFoundException;
@@ -8,9 +11,10 @@ import fr.insee.pogues.model.Questionnaire;
 import fr.insee.pogues.persistence.exceptions.EntityNotFoundException;
 import fr.insee.pogues.persistence.exceptions.NonUniqueResultException;
 import fr.insee.pogues.persistence.repository.QuestionnaireRepository;
+import fr.insee.pogues.persistence.repository.jpa.QuestionnaireJpaRepository;
+import fr.insee.pogues.service.TimeService;
 import fr.insee.pogues.service.modelcleaning.ModelCleaningService;
 import fr.insee.pogues.transforms.visualize.composition.QuestionnaireComposition;
-import fr.insee.pogues.utils.DateUtils;
 import fr.insee.pogues.utils.PoguesDeserializer;
 import fr.insee.pogues.utils.PoguesSerializer;
 import lombok.AllArgsConstructor;
@@ -37,10 +41,12 @@ import static fr.insee.pogues.utils.json.JSONFunctions.jsonStringtoJsonNode;
 @Slf4j
 public class QuestionnaireService implements IQuestionnaireService{
 
+    private final QuestionnaireJpaRepository questionnaireJpaRepository;
     private final QuestionnaireRepository questionnaireRepository;
     private final VersionService versionService;
     private final StampsRestrictionsService stampsRestrictionsService;
     private final ModelCleaningService modelCleaningService;
+    private final TimeService timeService;
 
     public List<JsonNode> getQuestionnairesMetadata(String owner) throws Exception {
         if (null == owner || owner.isEmpty()) {
@@ -76,16 +82,17 @@ public class QuestionnaireService implements IQuestionnaireService{
         return modelCleaningService.cleanModel(getRawQuestionnaireByID(id));
     }
 
-    public Map<String, JsonNode> getQuestionnairesByIds(List<String> ids) throws Exception {
+    public Map<String, JsonNode> getQuestionnairesByIds(List<String> ids){
         return questionnaireRepository.getQuestionnairesByIds(ids);
     }
 
     private JsonNode getRawQuestionnaireByID(String id) throws Exception {
-        JsonNode questionnaire = this.questionnaireRepository.getQuestionnaireByID(id);
-        if (null == questionnaire) {
-            throw new QuestionnaireNotFoundException(String.format("Questionnaire with id %s does not exist", id));
-        }
-        return questionnaire;
+        QuestionnaireEntity questionnaireEntity = questionnaireJpaRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new QuestionnaireNotFoundException(String.format("Questionnaire with id %s does not exist", id)));
+
+        return jsonStringtoJsonNode(questionnaireEntity.getData());
     }
 
     @Override
@@ -125,7 +132,6 @@ public class QuestionnaireService implements IQuestionnaireService{
      */
     public JsonNode getQuestionnaireWithReferences(JsonNode jsonQuestionnaire) throws Exception {
         Questionnaire questionnaireWithReferences = this.deReference(jsonQuestionnaire);
-        if(modelCleaningService != null) modelCleaningService.cleanModel(questionnaireWithReferences);
         return jsonStringtoJsonNode(PoguesSerializer.questionnaireJavaToString(questionnaireWithReferences));
     }
 
@@ -173,20 +179,36 @@ public class QuestionnaireService implements IQuestionnaireService{
 
     @Override
     public void updateQuestionnaire(String id, Questionnaire questionnaire) throws Exception {
-        questionnaire.setLastUpdatedDate(DateUtils.getIsoDateFromInstant(Instant.now()));
+        questionnaire.setLastUpdatedDate(timeService.getIsoDateFromInstant(Instant.now()));
         JsonNode questionnaireJsonNode = jsonStringtoJsonNode(PoguesSerializer.questionnaireJavaToString(questionnaire));
         this.updateQuestionnaire(id, questionnaireJsonNode);
     }
 
-    public Questionnaire deReference(JsonNode jsonQuestionnaire) throws Exception {
+    @Override
+    public Questionnaire getQuestionnaireWithItsReferences(Questionnaire questionnaire) throws PoguesDeserializationException, DeReferencingException, NullReferenceException {
+        return deReference(questionnaire);
+    }
+
+    @Override
+    public boolean existsById(String id) {
+        return questionnaireJpaRepository.existsById(id);
+    }
+
+    public Questionnaire deReference(JsonNode jsonQuestionnaire) throws PoguesDeserializationException, DeReferencingException, NullReferenceException {
         Questionnaire questionnaire = PoguesDeserializer.questionnaireToJavaObject(jsonQuestionnaire);
+        return deReference(questionnaire);
+    }
+
+
+    public Questionnaire deReference(Questionnaire questionnaire) throws PoguesDeserializationException, DeReferencingException, NullReferenceException {
         if(modelCleaningService != null) modelCleaningService.cleanModel(questionnaire);
         List<String> references = new ArrayList<>(questionnaire.getChildQuestionnaireRef()); // make copy of references
         deReference(references, questionnaire);
+        if(modelCleaningService != null) modelCleaningService.cleanModel(questionnaire);
         return questionnaire;
     }
 
-    private void deReference(List<String> references, Questionnaire questionnaire) throws Exception {
+    private void deReference(List<String> references, Questionnaire questionnaire) throws NullReferenceException, PoguesDeserializationException, DeReferencingException {
         log.debug("--- START Deref of {} with {} refs---", questionnaire.getId(), references.size());
         Map<String, JsonNode> childrenMap = this.getQuestionnairesByIds(references);
         for (String reference : references) {

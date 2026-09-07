@@ -1,6 +1,10 @@
 package fr.insee.pogues.persistence.service;
 
 
+import fr.insee.pogues.exception.PoguesDeserializationException;
+import fr.insee.pogues.exception.questionnaire.QuestionnaireNotFoundException;
+import fr.insee.pogues.exception.questionnaire.composition.DeReferencingException;
+import fr.insee.pogues.exception.questionnaire.composition.NullReferenceException;
 import fr.insee.pogues.model.Questionnaire;
 import tools.jackson.databind.JsonNode;
 
@@ -31,4 +35,15 @@ public interface IQuestionnaireService {
 
     void updateQuestionnaire(String id, Questionnaire questionnaire) throws Exception;
 
+    Questionnaire getQuestionnaireWithItsReferences(Questionnaire questionnaire) throws PoguesDeserializationException, DeReferencingException, NullReferenceException;
+
+    boolean existsById(String id);
+
+    default void ensureExistsById(String id){
+        if(!existsById(id)){
+            throw new QuestionnaireNotFoundException(
+                    "Questionnaire with id %s does not exist".formatted(id)
+            );
+        }
+    }
 }

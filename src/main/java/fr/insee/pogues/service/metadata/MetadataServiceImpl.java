@@ -14,7 +14,7 @@ import fr.insee.pogues.exception.metadata.DDIAgencyNotFound;
 import fr.insee.pogues.model.dto.metadata.AgencyDto;
 import fr.insee.pogues.model.dto.metadata.OperationDto;
 import fr.insee.pogues.model.dto.metadata.SerieDto;
-import fr.insee.pogues.persistence.repository.DDIAgencyRepository;
+import fr.insee.pogues.persistence.repository.jpa.DDIAgencyRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;

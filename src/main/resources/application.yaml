@@ -77,8 +77,11 @@ application:
 
   # Registry API - used to fetch valid registered codes lists so that users can use them in Pogues UI.
   # See source code: https://github.com/InseeFr/survey-registry-api
-  survey-registry:
-    host:
+  registry:
+    questionnaire:
+      host:
+    nomenclature:
+      host:
 
   metadata:
     # For codeList, nomenclature and units (it's a codeList)
@@ -88,6 +91,8 @@ application:
     magma-fusion:
 
   external-secure-urls:
+    - ${application.registry.questionnaire.host}
+    - ${application.registry.nomenclature.host}
   external-secure-urls-with-service-account:
     - ${application.metadata.ddi-as}
     - ${application.metadata.magma-fusion}
@@ -125,11 +130,20 @@ spring:
     multipart:
       max-file-size: -1
       max-request-size: -1
+  jackson:
+    time-zone: UTC
   jpa:
     open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
   http:
+    clients:
+      read-timeout: 300s
+      connect-timeout: 10s
     codecs:
-      max-in-memory-size: 10000KB
+      max-in-memory-size: 24MB
   # to make springfox work
   mvc:
     pathmatch:

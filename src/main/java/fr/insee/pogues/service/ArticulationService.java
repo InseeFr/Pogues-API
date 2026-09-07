@@ -7,14 +7,12 @@ import fr.insee.pogues.exception.variables.VariableNotFoundException;
 import fr.insee.pogues.model.*;
 import fr.insee.pogues.persistence.service.IQuestionnaireService;
 import fr.insee.pogues.persistence.service.VersionService;
-import fr.insee.pogues.utils.DateUtils;
 import fr.insee.pogues.utils.PoguesDeserializer;
 import fr.insee.pogues.utils.PoguesSerializer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,6 +29,7 @@ import static fr.insee.pogues.utils.model.PoguesModelUtils.*;
 @AllArgsConstructor
 public class ArticulationService {
 
+    private final TimeService timeService;
     private final IQuestionnaireService questionnaireService;
     private final VersionService versionService;
 
@@ -179,7 +178,7 @@ public class ArticulationService {
      * @throws PoguesException 404 questionnaire not found
      */
     private void updateQuestionnaireInDataBase(Questionnaire questionnaire) throws Exception {
-        questionnaire.setLastUpdatedDate(DateUtils.getIsoDateFromInstant(Instant.now()));
+        questionnaire.setLastUpdatedDate(timeService.getIsoDateFromInstantNow());
         questionnaireService.updateQuestionnaire(
                 questionnaire.getId(),
                 jsonStringtoJsonNode(PoguesSerializer.questionnaireJavaToString(questionnaire)));

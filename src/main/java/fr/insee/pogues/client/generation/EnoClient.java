@@ -1,10 +1,11 @@
 package fr.insee.pogues.client.generation;
 
-import fr.insee.pogues.exception.generation.GenerationException;
-import fr.insee.pogues.exception.PoguesException;
+import fr.insee.pogues.client.generation.exceptions.GenerationException;
+import fr.insee.pogues.domain.enums.generation.CollectMode;
+import fr.insee.pogues.domain.enums.generation.GenerationContext;
+import fr.insee.pogues.domain.enums.generation.GenerationFormat;
+import fr.insee.pogues.domain.enums.generation.parameters.GenerationParameters;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Map;
 
 /**
@@ -15,14 +16,18 @@ public interface EnoClient {
 	/** Only used as a health-check for the Eno external web-service. */
 	void getParameters();
 
-	String getPoguesXmlToDDI(String inputAsString) throws GenerationException, PoguesException;
+	GenerationParameters getGenerationParameters(GenerationContext context, GenerationFormat outFormat, CollectMode mode);
 
-	String getDDIToODT (String inputAsString) throws GenerationException, PoguesException;
+	String getPoguesXmlToDDI(String inputAsString) throws GenerationException;
 
-	String getDDIToFO(String inputAsString) throws URISyntaxException, IOException, GenerationException, PoguesException;
+	String getDDIToODT (String inputAsString) throws GenerationException;
 
-	String getDDIToXForms(String inputAsString) throws URISyntaxException, IOException, GenerationException, PoguesException;
+	String getDDIToFO(String inputAsString) throws GenerationException;
 
-	String getPoguesJsonToLunaticJson(String inputAsString, Map<String, Object> params) throws URISyntaxException, IOException, GenerationException, PoguesException;
+	String getDDIToXForms(String inputAsString) throws GenerationException;
+
+	String getPoguesJsonToLunaticJson(String inputAsString, Map<String, Object> params) throws GenerationException;
+
+	String getPoguesJsonToLunaticJson(String inputAsString, GenerationParameters generationParameters) throws GenerationException;
 
 }

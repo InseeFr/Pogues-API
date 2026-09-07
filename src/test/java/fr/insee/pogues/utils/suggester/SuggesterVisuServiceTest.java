@@ -32,7 +32,7 @@ class SuggesterVisuServiceTest {
     @BeforeEach
     void init() {
         suggesterVisuService = new SuggesterVisuService(questionnaireService);
-        ReflectionTestUtils.setField(suggesterVisuService, "surveyRegistryApi", REGISTRY_HOST);
+        ReflectionTestUtils.setField(suggesterVisuService, "nomenclatureRegistryHost", REGISTRY_HOST);
     }
 
     @Test

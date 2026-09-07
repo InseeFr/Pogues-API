@@ -1,10 +1,12 @@
 package fr.insee.pogues.persistence.service;
 
 import fr.insee.pogues.domain.entity.db.Version;
+import fr.insee.pogues.exception.PoguesDeserializationException;
+import fr.insee.pogues.exception.PoguesSerializationException;
 import fr.insee.pogues.model.Questionnaire;
 import fr.insee.pogues.persistence.repository.QuestionnaireRepository;
 import fr.insee.pogues.persistence.repository.QuestionnaireVersionRepository;
-import fr.insee.pogues.utils.DateUtils;
+import fr.insee.pogues.service.TimeService;
 import fr.insee.pogues.utils.PoguesDeserializer;
 import fr.insee.pogues.utils.PoguesSerializer;
 import lombok.AllArgsConstructor;
@@ -13,6 +15,7 @@ import tools.jackson.databind.JsonNode;
 import fr.insee.pogues.service.modelcleaning.ModelCleaningService;
 
 import java.sql.Date;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -24,6 +27,8 @@ import static fr.insee.pogues.utils.json.JSONFunctions.jsonStringtoJsonNode;
 @AllArgsConstructor
 public class VersionService {
 
+    private final Clock clock;
+    private TimeService timeService;
     private QuestionnaireVersionRepository questionnaireVersionRepository;
     private QuestionnaireRepository questionnaireRepository;
     private ModelCleaningService modelCleaningService;
@@ -32,32 +37,32 @@ public class VersionService {
         return questionnaireVersionRepository.getVersionsByQuestionnaireId(poguesId, withData);
     }
 
-    public Version getLastVersionByQuestionnaireId(String poguesId, boolean withData) throws Exception {
+    public Version getLastVersionByQuestionnaireId(String poguesId, boolean withData) {
         return questionnaireVersionRepository.getLastVersionByQuestionnaireId(poguesId, withData);
     }
 
-    public JsonNode getVersionDataByVersionId(UUID versionId) throws Exception {
+    public JsonNode getVersionDataByVersionId(UUID versionId) throws PoguesDeserializationException, PoguesSerializationException {
         Version version = this.getVersionByVersionId(versionId, true);
         return version.getData();
     }
 
-    public Questionnaire getVersionDataQuestionnaireModelByVersionId(UUID versionId) throws Exception {
+    public Questionnaire getVersionDataQuestionnaireModelByVersionId(UUID versionId) throws PoguesDeserializationException, PoguesSerializationException {
         return PoguesDeserializer.questionnaireToJavaObject(getVersionDataByVersionId(versionId));
     }
 
-    public Version getVersionByVersionId(UUID versionId, boolean withData) throws Exception {
+    public Version getVersionByVersionId(UUID versionId, boolean withData) throws PoguesDeserializationException, PoguesSerializationException {
         Version version = questionnaireVersionRepository.getVersionByVersionId(versionId, withData);
         if (withData) version.setData(modelCleaningService.cleanModel(version.getData()));
         return version;
     }
 
     public void createVersionOfQuestionnaire(String poguesId, JsonNode data, String author) throws Exception {
-        Instant now  = Instant.now();
+        ZonedDateTime nowZone  = ZonedDateTime.now(clock);
         Version versionToStore = new Version(
                 UUID.randomUUID(),
                 poguesId,
-                ZonedDateTime.now(),
-                new Date(now.toEpochMilli()),
+                nowZone,
+                new Date(nowZone.toInstant().toEpochMilli()),
                 data,
                 author);
         questionnaireVersionRepository.createVersion(versionToStore);
@@ -73,10 +78,13 @@ public class VersionService {
 
     public void restoreVersion(UUID versionId) throws Exception {
         // (1) Retrieve desired version
+
+        Instant now  = ZonedDateTime.now(clock).toInstant();
+
         Version version = questionnaireVersionRepository.getVersionByVersionId(versionId, true);
         // (2) Update lastUpdatedDate in Pogues-Model
         Questionnaire questionnaire = PoguesDeserializer.questionnaireToJavaObject(version.getData());
-        questionnaire.setLastUpdatedDate(DateUtils.getIsoDateFromInstant(Instant.now()));
+        questionnaire.setLastUpdatedDate(timeService.getIsoDateFromInstant(now));
         JsonNode newQuestionnaire = jsonStringtoJsonNode(PoguesSerializer.questionnaireJavaToString(questionnaire));
         // (3) Update questionnaire in pogues table
         questionnaireRepository.updateQuestionnaire(version.getPoguesId(), newQuestionnaire);

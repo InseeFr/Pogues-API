@@ -102,4 +102,14 @@ public class QuestionnaireServiceStub implements IQuestionnaireService {
         questionnaires.put(id, jsonStringtoJsonNode(PoguesSerializer.questionnaireJavaToString(questionnaire)));
 
     }
+
+    @Override
+    public Questionnaire getQuestionnaireWithItsReferences(Questionnaire questionnaire) {
+        return questionnaire;
+    }
+
+    @Override
+    public boolean existsById(String id) {
+        return null != questionnaires.get(id);
+    }
 }

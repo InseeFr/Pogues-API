@@ -4,7 +4,7 @@ import fr.insee.pogues.domain.entity.db.MappingCodesListRegistreDB;
 import fr.insee.pogues.exception.mapping.codes.list.registre.MappingNotFoundException;
 import fr.insee.pogues.exception.mapping.codes.list.registre.PoguesCodesListAlreadyMappedException;
 import fr.insee.pogues.exception.mapping.codes.list.registre.RegistreCodesListAlreadyMappedException;
-import fr.insee.pogues.persistence.repository.MappingCodesListRegistreRepository;
+import fr.insee.pogues.persistence.repository.jpa.MappingCodesListRegistreRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

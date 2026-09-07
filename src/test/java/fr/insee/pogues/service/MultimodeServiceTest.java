@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.JsonNode;
 
+import java.time.Clock;
 import java.util.List;
 
 import static fr.insee.pogues.utils.Utils.loadQuestionnaireFromResources;
@@ -37,8 +38,9 @@ class MultimodeServiceTest {
 
     @BeforeEach
     void init() {
+        TimeService timeService = new TimeService(Clock.systemUTC());
         questionnaireService = new QuestionnaireServiceStub();
-        multimodeService = new MultimodeService(questionnaireService, versionService);
+        multimodeService = new MultimodeService(timeService, questionnaireService, versionService);
 
         qMultimode = new Multimode();
         Rule ruleQ = new Rule();

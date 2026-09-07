@@ -72,7 +72,7 @@ public class ModelTransform {
 
 
 	@PostMapping(path = "visualize-spec", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-	@Operation(summary = "Get visualization spec from JSON serialized Pogues entity", hidden = true)
+	@Operation(summary = "Get visualization spec from JSON serialized Pogues entity")
 	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
 	public ResponseEntity<StreamingResponseBody> visualizeSpecFromBody(@RequestBody String request,
 			@RequestParam(name = "references", defaultValue = "false") Boolean ref) {

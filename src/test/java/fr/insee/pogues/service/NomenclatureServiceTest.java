@@ -6,7 +6,7 @@ import fr.insee.pogues.model.dto.nomenclatures.NomenclatureUrlDTO;
 import fr.insee.pogues.persistence.service.VersionService;
 import fr.insee.pogues.model.dto.nomenclatures.ExtendedNomenclatureDTO;
 import fr.insee.pogues.service.stub.QuestionnaireServiceStub;
-import fr.insee.pogues.service.stub.SurveyRegistryClientStub;
+import fr.insee.pogues.service.stub.NomenclatureRegistryClientStub;
 import fr.insee.pogues.utils.PoguesSerializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,12 +33,12 @@ class NomenclatureServiceTest {
 
     private NomenclatureService nomenclatureService;
     private QuestionnaireServiceStub questionnaireService;
-    private SurveyRegistryClientStub surveyRegistryClient;
+    private NomenclatureRegistryClientStub surveyRegistryClient;
 
     @BeforeEach
     void init() {
         questionnaireService = new QuestionnaireServiceStub();
-        surveyRegistryClient = new SurveyRegistryClientStub();
+        surveyRegistryClient = new NomenclatureRegistryClientStub();
         nomenclatureService = new NomenclatureService(questionnaireService, versionService, suggesterVisuService, surveyRegistryClient);
     }
 

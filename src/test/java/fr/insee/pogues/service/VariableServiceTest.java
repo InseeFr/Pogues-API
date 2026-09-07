@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.JsonNode;
 
 import java.math.BigInteger;
+import java.time.Clock;
 import java.util.List;
 
 import static fr.insee.pogues.utils.Utils.loadQuestionnaireFromResources;
@@ -35,8 +36,9 @@ class VariableServiceTest {
 
     @BeforeEach
     void init() {
+        TimeService timeService = new TimeService(Clock.systemUTC());
         questionnaireService = new QuestionnaireServiceStub();
-        variableService = new VariableService(questionnaireService, versionService);
+        variableService = new VariableService(timeService, questionnaireService, versionService);
     }
 
     @Test

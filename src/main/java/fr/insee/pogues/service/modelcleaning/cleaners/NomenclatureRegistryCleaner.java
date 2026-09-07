@@ -1,6 +1,6 @@
 package fr.insee.pogues.service.modelcleaning.cleaners;
 
-import fr.insee.pogues.client.surveyregistry.SurveyRegistryClient;
+import fr.insee.pogues.client.surveyregistry.nomenclature.NomenclatureRegistryClient;
 import fr.insee.pogues.conversion.JSONSynonymsPreProcessor;
 import fr.insee.pogues.domain.entity.db.MappingCodesListRegistreDB;
 import fr.insee.pogues.model.*;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class NomenclatureRegistryCleaner implements ModelCleaner {
 
     private final MappingRegistryService mappingCodesListRegistryService;
-    private final SurveyRegistryClient registryClient;
+    private final NomenclatureRegistryClient nomenclatureRegistryClient;
 
     private final ObjectMapper objectMapper = JsonMapper.builder().build();
 
@@ -51,7 +51,7 @@ public class NomenclatureRegistryCleaner implements ModelCleaner {
 
 
     private void replaceNomenclatureDictionary(CodeList nomenclature, UUID newNomenclatureId) {
-        NomenclatureDTO nomenclatureFromRegistry = registryClient.getNomenclatureMetadataById(newNomenclatureId);
+        NomenclatureDTO nomenclatureFromRegistry = nomenclatureRegistryClient.getNomenclatureMetadataById(newNomenclatureId);
         nomenclature.setName(null);
         nomenclature.setId(newNomenclatureId.toString());
         nomenclature.setLabel(nomenclatureFromRegistry.getLabel());

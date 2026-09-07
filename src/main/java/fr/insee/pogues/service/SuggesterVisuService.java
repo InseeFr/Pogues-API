@@ -25,8 +25,8 @@ import static fr.insee.pogues.utils.json.JSONFunctions.jsonStringtoJsonNode;
 @Service
 public class SuggesterVisuService {
 
-    @Value("${application.survey-registry.host}")
-    private String surveyRegistryApi;
+    @Value("${application.registry.nomenclature.host}")
+    private String nomenclatureRegistryHost;
 
     private final IQuestionnaireService questionnaireService;
 
@@ -52,7 +52,7 @@ public class SuggesterVisuService {
      */
     public List<NomenclatureUrlDTO> computeNomenclaturesUrls(List<String> nomenclatureIds) {
         return nomenclatureIds.stream()
-                .map(id -> new NomenclatureUrlDTO(id, String.format("%s/codes-lists/%s", surveyRegistryApi, id)))
+                .map(id -> new NomenclatureUrlDTO(id, String.format("%s/codes-lists/%s", nomenclatureRegistryHost, id)))
                 .toList();
     }
 
@@ -60,7 +60,7 @@ public class SuggesterVisuService {
      * Create a JSONObject for queryParam for Visualisation
      * @param nomenclaturesIds
      * @return The expected jsonObject
-     * @example_return :{ "id_1": "${surveyRegistryApi}/codes-lists/${id_1}", "id_2": "${surveyRegistryApi}/codes-lists/${id_2}"}
+     * @example_return :{ "id_1": "${nomenclatureRegistryHost}/codes-lists/${id_1}", "id_2": "${nomenclatureRegistryHost}/codes-lists/${id_2}"}
      */
     public JsonNode createJsonNomenclaturesForVisu(List<String> nomenclaturesIds) {
         ObjectNode finalNomenclatures = JsonNodeFactory.instance.objectNode();

@@ -7,11 +7,11 @@ import java.util.UUID;
 
 public interface QuestionnaireVersionRepository {
 
-    List<Version> getVersionsByQuestionnaireId(String poguesId, boolean withData) throws Exception;
+    List<Version> getVersionsByQuestionnaireId(String poguesId, boolean withData);
 
-    Version getLastVersionByQuestionnaireId(String poguesId, boolean withData) throws Exception;
+    Version getLastVersionByQuestionnaireId(String poguesId, boolean withData);
 
-    Version getVersionByVersionId(UUID versionId, boolean withData) throws Exception;
+    Version getVersionByVersionId(UUID versionId, boolean withData);
 
     void createVersion(Version version) throws Exception;
 

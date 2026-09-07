@@ -18,11 +18,11 @@ public class QuestionnaireRepositoryStub implements QuestionnaireRepository {
         return new ArrayList<>(questionnaires.values());
 	}
 
-	public JsonNode getQuestionnaireByID(String id) throws Exception {
+	public JsonNode getQuestionnaireByID(String id) {
 		return questionnaires.get(id);
 	}
 
-	public Map<String, JsonNode> getQuestionnairesByIds(List<String> ids) throws Exception {
+	public Map<String, JsonNode> getQuestionnairesByIds(List<String> ids) {
 		Map<String, JsonNode> res = new HashMap<>();
 		ids.forEach(id -> {
 			JsonNode questionnaire = questionnaires.get(id);
@@ -31,11 +31,11 @@ public class QuestionnaireRepositoryStub implements QuestionnaireRepository {
 		return res;
 	}
 
-	public void deleteQuestionnaireByID(String id) throws Exception {
+	public void deleteQuestionnaireByID(String id) {
 		questionnaires.remove(id);
 	}
 
-	public List<JsonNode> getQuestionnairesByOwner(String owner) throws Exception {
+	public List<JsonNode> getQuestionnairesByOwner(String owner) {
 		List<JsonNode> res = new ArrayList<>();
 		questionnaires.forEach((k, v) -> {
 			if (Objects.equals(owner, v.get("owner").asText())) { res.add(v); }
@@ -43,7 +43,7 @@ public class QuestionnaireRepositoryStub implements QuestionnaireRepository {
 		return res;
 	}
 
-	public List<JsonNode> getMetaQuestionnaire(String owner) throws Exception {
+	public List<JsonNode> getMetaQuestionnaire(String owner) {
 		return List.of();
 	}
 
@@ -60,7 +60,7 @@ public class QuestionnaireRepositoryStub implements QuestionnaireRepository {
 		questionnaires.put(id, questionnaire);
 	}
 
-	public void updateQuestionnaire(String id, JsonNode questionnaire) throws Exception {
+	public void updateQuestionnaire(String id, JsonNode questionnaire) {
 		questionnaires.put(id, questionnaire);
 	}
 
@@ -68,7 +68,7 @@ public class QuestionnaireRepositoryStub implements QuestionnaireRepository {
 	 * A method to count the questionnaires stored in database
 	 */
 	@Override
-	public String countQuestionnaires() throws Exception {
+	public String countQuestionnaires() {
 		int count = questionnaires.size();
 		if (count == 0) {
 			throw new PoguesException(404, "Not found", "No questionnaires found in database");

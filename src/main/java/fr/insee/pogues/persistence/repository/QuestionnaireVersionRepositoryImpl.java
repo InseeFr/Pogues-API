@@ -3,6 +3,7 @@ package fr.insee.pogues.persistence.repository;
 import fr.insee.pogues.domain.entity.db.Version;
 import fr.insee.pogues.exception.PoguesException;
 import fr.insee.pogues.exception.variables.VersionNotFoundException;
+import fr.insee.pogues.service.TimeService;
 import lombok.extern.slf4j.Slf4j;
 import org.postgresql.util.PGobject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +13,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import static fr.insee.pogues.utils.DateUtils.convertZonedDateTimeToTimestamp;
+import static fr.insee.pogues.service.TimeService.convertZonedDateTimeToTimestamp;
 
 @Service
 @Slf4j
@@ -24,6 +26,9 @@ public class QuestionnaireVersionRepositoryImpl implements QuestionnaireVersionR
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+
+	@Autowired
+	Clock clock;
 
 	@Value("${feature.database.rollingBackup.maxByQuestionnaire}")
 	private int maxBackupByQuestionnaire;
@@ -44,9 +49,9 @@ public class QuestionnaireVersionRepositoryImpl implements QuestionnaireVersionR
 	private static final String SELECT_VERSION_QUERY_WITHOUT_DATA = String.format(SELECT_VERSION_QUERY, BASE_COLUMNS);
 
 	@Override
-	public List<Version> getVersionsByQuestionnaireId(String poguesId, boolean withData) throws Exception {
+	public List<Version> getVersionsByQuestionnaireId(String poguesId, boolean withData) {
 		String qString = withData ? SELECT_VERSIONS_QUERY_WITH_DATA : SELECT_VERSIONS_QUERY_WITHOUT_DATA;
-		List<Version> versions = jdbcTemplate.query(qString,  new VersionRowMapper(withData), poguesId);
+		List<Version> versions = jdbcTemplate.query(qString,  new VersionRowMapper(withData, clock), poguesId);
 		if(versions.isEmpty()){
 			throw new PoguesException(404, "Not found", "No version for poguesId "+ poguesId);
 		}
@@ -54,20 +59,20 @@ public class QuestionnaireVersionRepositoryImpl implements QuestionnaireVersionR
 	}
 
 	@Override
-	public Version getLastVersionByQuestionnaireId(String poguesId, boolean withData) throws Exception {
+	public Version getLastVersionByQuestionnaireId(String poguesId, boolean withData) {
 		String qString = withData ? SELECT_LAST_VERSION_QUERY_WITH_DATA : SELECT_LAST_VERSION_QUERY_WITHOUT_DATA;
 		try {
-			return jdbcTemplate.queryForObject(qString,  new VersionRowMapper(withData), poguesId);
+			return jdbcTemplate.queryForObject(qString,  new VersionRowMapper(withData, clock), poguesId);
 		} catch (EmptyResultDataAccessException e) {
 			throw new PoguesException(404, "Not found", "No version for poguesId "+ poguesId);
 		}
 	}
 
 	@Override
-	public Version getVersionByVersionId(UUID versionId, boolean withData) throws Exception {
+	public Version getVersionByVersionId(UUID versionId, boolean withData) {
 		String qString = withData ? SELECT_VERSION_QUERY_WITH_DATA : SELECT_VERSION_QUERY_WITHOUT_DATA;
 		try {
-			return jdbcTemplate.queryForObject(qString, new VersionRowMapper(withData), versionId);
+			return jdbcTemplate.queryForObject(qString, new VersionRowMapper(withData, clock), versionId);
 		} catch (EmptyResultDataAccessException e) {
 			String message = String.format("Version with id %s does not exist", versionId);
 			throw new VersionNotFoundException(message);

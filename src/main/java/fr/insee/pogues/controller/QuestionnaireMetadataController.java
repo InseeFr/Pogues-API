@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -18,14 +19,11 @@ import java.io.ByteArrayOutputStream;
 @RestController
 @RequestMapping("/api/questionnaire")
 @Tag(name = "04. Questionnaire Metadata Controller")
+@AllArgsConstructor
 @Slf4j
 public class QuestionnaireMetadataController {
 
     private final QuestionnaireMetadataService metadataService;
-
-    public QuestionnaireMetadataController(QuestionnaireMetadataService metadataService) {
-        this.metadataService = metadataService;
-    }
 
     private static String getZipFileName(String poguesId){
         return String.format("pogues-metadata-%s.zip", poguesId);

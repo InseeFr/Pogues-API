@@ -6,7 +6,6 @@ import fr.insee.pogues.model.*;
 import fr.insee.pogues.persistence.service.IQuestionnaireService;
 import fr.insee.pogues.persistence.service.VersionService;
 import fr.insee.pogues.mapper.CodesListMapper;
-import fr.insee.pogues.utils.DateUtils;
 import fr.insee.pogues.utils.PoguesDeserializer;
 import fr.insee.pogues.utils.PoguesSerializer;
 import fr.insee.pogues.utils.model.question.Common;
@@ -17,7 +16,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -39,6 +37,7 @@ import static fr.insee.pogues.utils.model.question.Table.updateTableQuestionAcco
 @AllArgsConstructor
 public class CodesListService {
 
+    private final TimeService timeService;
     private final IQuestionnaireService questionnaireService;
     private final VersionService versionService;
 
@@ -154,7 +153,6 @@ public class CodesListService {
             throw new CodesListException(404, ErrorCode.CODE_LIST_NOT_FOUND, "Not found", message, null);
         }
     }
-
 
 
     private List<String> updateQuestionAndVariablesAccordingToCodesList(Questionnaire questionnaire, String updatedCodeListId) {

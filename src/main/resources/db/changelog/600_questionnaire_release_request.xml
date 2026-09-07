@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet author="admin (generated)" id="1783681361456-1">
+        <createTable tableName="questionnaire_release_request" ifNotExists="true">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="author" type="VARCHAR"/>
+            <column name="request_date" type="TIMESTAMP WITH TIME ZONE"  defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="release_description" type="VARCHAR"/>
+            <column name="mode" type="VARCHAR"/>
+            <column name="context" type="VARCHAR"/>
+            <column name="current_step" type="VARCHAR"/>
+            <column name="status" type="VARCHAR"/>
+            <column name="status_description" type="VARCHAR"/>
+            <column name="pogues_version_id" type="UUID" />
+            <column name="pogues_id" type="VARCHAR">
+                <constraints nullable="false"
+                             foreignKeyName="fk_questionnaire_release_request_pogues_id"
+                             referencedTableName="pogues" referencedColumnNames="id"
+                             deleteCascade="true" />
+            </column>
+            <column name="collection_instrument_id" type="UUID"/>
+            <column name="generation_params_question_numbering_mode" type="VARCHAR"/>
+            <column name="generation_params_response_time_question" type="BOOLEAN"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="admin (generated)" id="1783681361456-2">
+        <!-- fix: timezone for pogues_version table using timestamp with time zone using Europe/Paris zone -->
+        <sql dbms="postgresql" splitStatements="false">
+            ALTER TABLE pogues_version
+            ALTER COLUMN "timestamp"
+            TYPE TIMESTAMP WITH TIME ZONE
+            USING "timestamp" AT TIME ZONE 'Europe/Paris';
+        </sql>
+    </changeSet>
+    
+    <changeSet id="1783681361456-3" author="admin (generated)">
+        <dropTable tableName="questionnaire_release_request" />
+    </changeSet>
+
+    <changeSet id="release-request-create-table" author="pogues">
+        <createTable tableName="release_request">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_release_request" nullable="false"/>
+            </column>
+            <column name="requested_by" type="VARCHAR"/>
+            <column name="requested_at" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="CURRENT_TIMESTAMP"/>
+
+            <column name="pogues_version_id" type="UUID"/>
+            <column name="pogues_id" type="VARCHAR" />
+
+            <column name="release_description" type="VARCHAR"/>
+            <column name="context" type="VARCHAR"/>
+            <column name="generation_params_question_numbering_mode" type="VARCHAR"/>
+            <column name="generation_params_response_time_question" type="BOOLEAN"/>
+
+
+            <column name="current_step" type="VARCHAR"/>
+            <column name="status" type="VARCHAR"/>
+            <column name="status_description" type="VARCHAR"/>
+            <column name="updated_at" type="TIMESTAMP WITH TIME ZONE"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="release_request"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="release-request-mode-create-table" author="pogues">
+        <createTable tableName="release_request_mode">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_release_request_mode" nullable="false"/>
+            </column>
+            <column name="release_request_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mode" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR"/>
+            <column name="status_description" type="VARCHAR"/>
+            <column name="current_step" type="VARCHAR"/>
+            <column name="collection_instrument_id" type="UUID"/>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="release_request_mode"
+                baseColumnNames="release_request_id"
+                constraintName="fk_release_request_mode_request"
+                referencedTableName="release_request"
+                referencedColumnNames="id"
+                onDelete="CASCADE"/>
+
+        <addUniqueConstraint
+                tableName="release_request_mode"
+                columnNames="release_request_id, mode"
+                constraintName="uk_release_request_mode"/>
+
+        <createIndex tableName="release_request_mode" indexName="idx_release_request_mode_request_id">
+            <column name="release_request_id"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable tableName="release_request_mode"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

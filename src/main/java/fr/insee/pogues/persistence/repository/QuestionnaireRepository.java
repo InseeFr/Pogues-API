@@ -11,9 +11,9 @@ import java.util.Map;
  */
 public interface QuestionnaireRepository {
 
-    JsonNode getQuestionnaireByID(String id) throws Exception;
+    JsonNode getQuestionnaireByID(String id);
 
-    Map<String, JsonNode> getQuestionnairesByIds(List<String> ids) throws Exception;
+    Map<String, JsonNode> getQuestionnairesByIds(List<String> ids);
 
     void deleteQuestionnaireByID(String id) throws Exception;
 

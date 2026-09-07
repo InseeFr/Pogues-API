@@ -19,6 +19,7 @@ import tools.jackson.databind.JsonNode;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.time.Clock;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,10 +39,12 @@ class CodesListServiceTest {
     private CodesListService codesListService;
     private QuestionnaireServiceStub questionnaireService;
 
+
     @BeforeEach
     void init(){
+        TimeService timeService = new TimeService(Clock.systemUTC());
         questionnaireService = new QuestionnaireServiceStub();
-        codesListService = new CodesListService(questionnaireService, versionService);
+        codesListService = new CodesListService(timeService, questionnaireService, versionService);
         initMocks(this);
     }
 

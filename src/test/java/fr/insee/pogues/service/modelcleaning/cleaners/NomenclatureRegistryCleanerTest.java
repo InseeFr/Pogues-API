@@ -4,7 +4,7 @@ import fr.insee.pogues.domain.entity.db.MappingCodesListRegistreDB;
 import fr.insee.pogues.model.*;
 import fr.insee.pogues.model.dto.nomenclatures.NomenclatureDTO;
 import fr.insee.pogues.service.stub.MappingRegistryServiceStub;
-import fr.insee.pogues.service.stub.SurveyRegistryClientStub;
+import fr.insee.pogues.service.stub.NomenclatureRegistryClientStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,13 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class NomenclatureRegistryCleanerTest {
 
     private NomenclatureRegistryCleaner nomenclatureRegistryCleaner;
-    private SurveyRegistryClientStub registryClient;
+    private NomenclatureRegistryClientStub registryClient;
     private MappingRegistryServiceStub mappingService;
 
 
     @BeforeEach
     void init(){
-        registryClient = new SurveyRegistryClientStub();
+        registryClient = new NomenclatureRegistryClientStub();
         mappingService = new MappingRegistryServiceStub();
         nomenclatureRegistryCleaner = new NomenclatureRegistryCleaner(mappingService, registryClient);
     }

@@ -16,7 +16,7 @@ public class ScheduleCleanerService {
         this.questionnaireVersionRepository = questionnaireVersionRepository;
     }
 
-    @Scheduled(cron = "${feature.database.rollingBackup.cron}", zone = "${application.timezoneId}")
+    @Scheduled(cron = "${feature.database.rollingBackup.cron}")
     public void scheduleQuestionnaireSaveCleaner(){
         log.info("START -- cleaning questionnaire backups");
         log.info("Keep the last backup for a day, and keep 10 last backup regardless of the day");

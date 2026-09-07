@@ -1,6 +1,6 @@
 package fr.insee.pogues.service;
 
-import fr.insee.pogues.client.surveyregistry.SurveyRegistryClient;
+import fr.insee.pogues.client.surveyregistry.nomenclature.NomenclatureRegistryClient;
 import fr.insee.pogues.exception.PoguesException;
 import fr.insee.pogues.mapper.CodesListMapper;
 import fr.insee.pogues.model.CodeList;
@@ -30,7 +30,7 @@ public class NomenclatureService {
     private final IQuestionnaireService questionnaireService;
     private final VersionService versionService;
     private final SuggesterVisuService suggesterVisuService;
-    private final SurveyRegistryClient surveyRegistryRestClient;
+    private final NomenclatureRegistryClient nomenclatureRegistryClient;
 
     /**
      * Fetch the nomenclatures of a questionnaire.
@@ -86,6 +86,6 @@ public class NomenclatureService {
      * @throws HttpServerErrorException Could not get it from the API because of a server error
      */
     public List<NomenclatureDTO> getAllNomenclatures() throws HttpClientErrorException, HttpServerErrorException {
-        return surveyRegistryRestClient.getNomenclatures();
+        return nomenclatureRegistryClient.getNomenclatures();
     }
 }
