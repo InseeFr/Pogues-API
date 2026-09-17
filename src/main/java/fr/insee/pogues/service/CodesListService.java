@@ -80,6 +80,31 @@ public class CodesListService {
     }
 
     /**
+     * Fetch a single codes list of a questionnaire.
+     * @param questionnaireId ID of the questionnaire to fetch the codes list from
+     * @param codesListId ID of the codes list to fetch
+     * @throws Exception Could not read from the DB
+     * @throws PoguesException 404 questionnaire not found
+     * @throws CodesListException 404 codes list not found
+     */
+    public ExtendedCodesListDTO getQuestionnaireCodesList(String questionnaireId, String codesListId) throws Exception {
+        Questionnaire questionnaire = retrieveQuestionnaireByQuestionnaireId(questionnaireId);
+        return getCodesListDTO(questionnaire, codesListId);
+    }
+
+    private ExtendedCodesListDTO getCodesListDTO(Questionnaire questionnaire, String codesListId) {
+        CodeList codeList = questionnaire.getCodeLists().getCodeList().stream()
+                .filter(questionnaireCodesList -> Objects.equals(codesListId, questionnaireCodesList.getId()))
+                .findFirst()
+                .orElseThrow(() -> {
+                    String message = String.format("CodesList with id %s doesn't exist in questionnaire", codesListId);
+                    return new CodesListException(404, ErrorCode.CODE_LIST_NOT_FOUND, "Not found", message, null);
+                });
+        CodesListDTO codesListDTO = CodesListMapper.toDTO(codeList);
+        return new ExtendedCodesListDTO(codesListDTO, getListOfQuestionNameWhereCodesListIsUsed(questionnaire, codesListDTO.getId()));
+    }
+
+    /**
      * Update or create a new code list in the questionnaire.
      * It will update the questionnaire's last updated date.
      * @param questionnaireId ID of the questionnaire to update

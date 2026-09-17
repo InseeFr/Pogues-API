@@ -51,6 +51,21 @@ public class CodesListController {
         return ResponseEntity.status(HttpStatus.OK).body(codesLists);
     }
 
+    @Operation(summary = "Get a codes list of a questionnaire",
+            responses = { @ApiResponse(content = @Content(mediaType = "application/json")) })
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success", content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ExtendedCodesListDTO.class))}),
+            @ApiResponse(responseCode = "404", description = "Questionnaire or codes list not found", content = { @Content(mediaType = "application/json", schema = @Schema(implementation = ApiMessage.class)) }) })
+    @GetMapping("/questionnaire/{questionnaireId}/codes-list/{codesListId}")
+    @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+    public ResponseEntity<ExtendedCodesListDTO> getQuestionnaireCodesList(
+            @PathVariable(value = "questionnaireId") String questionnaireId,
+            @PathVariable(value = "codesListId") String codesListId
+    ) throws Exception {
+        ExtendedCodesListDTO codesList = codesListService.getQuestionnaireCodesList(questionnaireId, codesListId);
+        return ResponseEntity.status(HttpStatus.OK).body(codesList);
+    }
+
     @Operation(summary = "Get the codes lists from a questionnaire's backup",
             responses = { @ApiResponse(content = @Content(mediaType = "application/json")) })
     @ApiResponses(value = {

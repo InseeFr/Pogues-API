@@ -18,7 +18,7 @@
 	<properties>
 		<!-- Project metadata properties -->
 		<final.asset.name>pogues-bo</final.asset.name>
-		<revision>5.2.2</revision> <!-- Version is managed by git tags -->
+		<revision>5.3.1</revision> <!-- Version is managed by git tags -->
 
 		<!-- Project build properties -->
 		<java.version>25</java.version>
@@ -33,7 +33,7 @@
 		<!-- Version properties not managed by Spring Boot -->
 		<pogues-model.version>2.1.0</pogues-model.version>
 		<fop.version>2.11</fop.version>
-		<springdoc-openapi-ui.version>3.1.0</springdoc-openapi-ui.version>
+		<springdoc-openapi-ui.version>3.1.1</springdoc-openapi-ui.version>
 		<jacoco.version>0.8.15</jacoco.version>
 		<saxon.version>12.10</saxon.version>
 		<postgresql.version>42.7.13</postgresql.version>
@@ -228,7 +228,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.15.0</version>
+				<version>3.16.0</version>
 				<configuration>
 					<!--Ajout nécessaire à partir de java 23-->
 					<annotationProcessorPaths>

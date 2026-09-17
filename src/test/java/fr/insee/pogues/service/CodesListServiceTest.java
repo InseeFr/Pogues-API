@@ -67,6 +67,42 @@ class CodesListServiceTest {
     }
 
     @Test
+    @DisplayName("Should fetch a single questionnaire codes list")
+    void getQuestionnaireCodesList_success() throws Exception {
+        // Given a questionnaire with several code lists
+        Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/complexTableWithCodesLists.json");
+        String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
+        JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
+        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+
+        // When we get one specific codes list
+        ExtendedCodesListDTO codesList = codesListService.getQuestionnaireCodesList("m7c5siu3", "m7d794ks");
+
+        // Then the codes list is fetched with its related questions
+        assertEquals("m7d794ks", codesList.getId());
+        assertThat(codesList.getRelatedQuestionNames()).containsExactly("TAB", "CHOIXMULTI", "CHOIXMULTIT");
+    }
+
+    @Test
+    @DisplayName("Should throw a 404 exception when the codes list doesn't exist")
+    void getQuestionnaireCodesList_error_notFound() throws Exception {
+        // Given a questionnaire with no matching code list
+        Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/complexTableWithCodesLists.json");
+        String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
+        JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
+        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+
+        // When we get a codes list that doesn't exist
+        CodesListException exception = assertThrows(
+                CodesListException.class,
+                () -> codesListService.getQuestionnaireCodesList("m7c5siu3", "unknown-id")
+        );
+
+        // Then a 404 exception is thrown
+        assertEquals(404, exception.getStatus());
+    }
+
+    @Test
     void upsertQuestionnaireCodesList_success_created() throws Exception {
         // Given a questionnaire with no code list
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/withoutCodesList.json");
