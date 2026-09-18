@@ -6,12 +6,9 @@ import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,14 +27,14 @@ public class SpringDocConfiguration {
     private String poguesModelVersion;
     @Bean
     @ConditionalOnProperty(name = "feature.oidc.enabled", havingValue = "false")
-    protected OpenAPI noAuthOpenAPI(BuildProperties buildProperties) {
-        return generateOpenAPI(buildProperties);
+    protected OpenAPI noAuthOpenAPI(ApplicationProperties applicationProperties) {
+        return generateOpenAPI(applicationProperties);
     }
 
     @Bean
     @ConditionalOnProperty(name = "feature.oidc.enabled", havingValue = "true")
-    protected OpenAPI oidcOpenAPI(OidcProperties oidcProperties, BuildProperties buildProperties) {
-        return generateOpenAPI(buildProperties)
+    protected OpenAPI oidcOpenAPI(OidcProperties oidcProperties, ApplicationProperties applicationProperties) {
+        return generateOpenAPI(applicationProperties)
                 .addSecurityItem(new SecurityRequirement().addList(OAUTH2SCHEME, Arrays.asList("read", "write")))
                 .components(
                         new Components()
@@ -52,15 +49,15 @@ public class SpringDocConfiguration {
 
     }
 
-    private OpenAPI generateOpenAPI(BuildProperties buildProperties) {
+    private OpenAPI generateOpenAPI(ApplicationProperties applicationProperties) {
         return new OpenAPI().info(
                 new Info()
-                        .title(buildProperties.getName())
+                        .title(applicationProperties.name())
                         .description(String.format("""
                                         <h2>Rest Endpoints and services used by Pogues</h2>
                                         <div><b>Pogues-Model version : </b><i>%s</i></div>
                                         """,poguesModelVersion))
-                        .version(buildProperties.getVersion())
+                        .version(applicationProperties.version())
         );
     }
 

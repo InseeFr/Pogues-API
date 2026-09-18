@@ -15,4 +15,6 @@ public interface MetadataService {
     AgencyDto createAgency(AgencyDto agency);
     Boolean deleteAgencyById(String id);
     Boolean existAgencyMatchingById(String id);
+    SerieDto createInternalSerie(SerieDto serie);
+    Boolean deleteInternalSerieById(String id);
 }

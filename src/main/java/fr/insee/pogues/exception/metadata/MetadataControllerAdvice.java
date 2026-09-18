@@ -1,6 +1,5 @@
 package fr.insee.pogues.exception.metadata;
 
-
 import fr.insee.pogues.client.metadata.exceptions.MetadataRepositoryException;
 import fr.insee.pogues.client.metadata.exceptions.SerieNotFoundException;
 import fr.insee.pogues.controller.MetadataController;
@@ -56,6 +55,39 @@ public class MetadataControllerAdvice {
 
         ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
         problemDetail.setTitle("DDI Agency not found");
+        problemDetail.setDetail(ex.getMessage());
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(InternalSerieNotFound.class)
+    public ProblemDetail handleInternalSerieNotFound(InternalSerieNotFound ex, HttpServletRequest request) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setTitle("Internal Serie not found");
+        problemDetail.setDetail(ex.getMessage());
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(InternalSerieAlreadyExists.class)
+    public ProblemDetail handleInternalSerieAlreadyExists(InternalSerieAlreadyExists ex, HttpServletRequest request) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setTitle("Internal Serie already exists");
+        problemDetail.setDetail(ex.getMessage());
+        problemDetail.setInstance(URI.create(request.getRequestURI()));
+
+        return problemDetail;
+    }
+
+    @ExceptionHandler(InternalSerieInvalid.class)
+    public ProblemDetail handleInternalSerieInvalid(InternalSerieInvalid ex, HttpServletRequest request) {
+
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setTitle("Internal Serie invalid");
         problemDetail.setDetail(ex.getMessage());
         problemDetail.setInstance(URI.create(request.getRequestURI()));
 

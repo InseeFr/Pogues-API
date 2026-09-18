@@ -28,10 +28,6 @@ public class LunaticJSONToUriQueenImpl implements LunaticJSONToUriQueen{
 
 	@Value("${application.host}")
 	private String apiHost;
-	
-	@Value("${application.name}")
-	private String apiName;
-	
 	@Value("${application.scheme}")
 	private String apiScheme;
 	@Value("${application.queen.vis.host}")
@@ -59,16 +55,16 @@ public class LunaticJSONToUriQueenImpl implements LunaticJSONToUriQueen{
 
 		List<String> nomenclatureIds = (List<String>) params.get("nomenclatureIds");
 		String jsonStringNomenclaturesForVisu = suggesterVisuService.createJsonNomenclaturesForVisu(nomenclatureIds).toString();
-		String urlGetJsonLunatic = String.format("%s://%s%s/api/persistence/questionnaire/json-lunatic/%s", apiScheme, apiHost, apiName, id);
+		String urlGetJsonLunatic = String.format("%s://%s/api/persistence/questionnaire/json-lunatic/%s", apiScheme, apiHost, id);
 
 		return URI.create(String.format(
 				"%s%s?%s=%s&%s=%s",
 				orchestratorHost,
 				visualizePath,
 				queryParamsQuestionnaire,
-				URLEncoder.encode(urlGetJsonLunatic, "UTF-8"),
+				URLEncoder.encode(urlGetJsonLunatic, StandardCharsets.UTF_8),
 				queryParamsNomenclatures,
-				URLEncoder.encode(jsonStringNomenclaturesForVisu, "UTF-8")
+				URLEncoder.encode(jsonStringNomenclaturesForVisu, StandardCharsets.UTF_8)
 		));
 	}
 

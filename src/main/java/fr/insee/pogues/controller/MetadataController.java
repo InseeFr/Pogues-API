@@ -90,4 +90,21 @@ public class MetadataController {
     public void deleteAgencies(@PathVariable(value = "id") String id) {
         metadataService.deleteAgencyById(id);
     }
+
+    @PostMapping("metadata/series")
+    @Operation(operationId = "postInternalSerie", summary = "Add internal serie", description = "This will add an internal serie to pogues DB", responses = {
+            @ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(implementation = SerieDto.class))) })
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
+    public ResponseEntity<SerieDto> postInternalSerie(@RequestBody SerieDto serieDto) {
+        SerieDto createdSerie = metadataService.createInternalSerie(serieDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdSerie);
+    }
+
+    @DeleteMapping("metadata/series/{id}")
+    @Operation(operationId = "deleteInternalSerie", summary = "Delete internal serie", description = "This will delete an internal serie from pogues DB, according to it's id", responses = {
+            @ApiResponse(content = @Content(mediaType = "application/json", schema = @Schema(implementation = Boolean.class))) })
+    @PreAuthorize(AuthorityPrivileges.HAS_ADMIN_PRIVILEGES)
+    public void deleteInternalSerie(@PathVariable(value = "id") String id) {
+        metadataService.deleteInternalSerieById(id);
+    }
 }

@@ -11,7 +11,6 @@ import fr.insee.pogues.transforms.visualize.eno.DDIToXForms;
 import fr.insee.pogues.transforms.visualize.eno.PoguesJSONToLunaticJSON;
 import fr.insee.pogues.transforms.visualize.eno.PoguesXMLToDDI;
 import fr.insee.pogues.transforms.visualize.uri.LunaticJSONToUriQueen;
-import fr.insee.pogues.transforms.visualize.uri.LunaticJSONToUriStromaeV2;
 import fr.insee.pogues.transforms.visualize.uri.LunaticJSONToUriStromaeV3;
 import fr.insee.pogues.transforms.visualize.uri.XFormsToURIStromaeV1;
 import fr.insee.pogues.service.SuggesterVisuService;
@@ -50,7 +49,6 @@ public class VisualizeWithURI {
     XFormsToURIStromaeV1 xformToUri;
     PoguesJSONToLunaticJSON poguesJSONToLunaticJSON;
     LunaticJSONToUriQueen lunaticJSONToUriQueen;
-    LunaticJSONToUriStromaeV2 lunaticJSONToUriStromaeV2;
     LunaticJSONToUriStromaeV3 lunaticJSONToUriStromaeV3;
     PoguesJSONToPoguesJSONDeref jsonToJsonDeref;
     SuggesterVisuService suggesterVisuService;

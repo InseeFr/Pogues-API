@@ -10,7 +10,8 @@ application:
   host: localhost:${server.port}
   # https://docs.oracle.com/javase/8/docs/api/java/time/ZoneId.html
   timezoneId: "Europe/Paris"
-  name: ''
+  name: Pogues-API
+  version: @project.version@
   scheme: http
   public-urls:
     - /actuator/**

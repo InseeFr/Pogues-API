@@ -2,16 +2,19 @@ package fr.insee.pogues.service.metadata;
 
 import fr.insee.pogues.client.metadata.DDIASClient;
 import fr.insee.pogues.client.metadata.MagmaFusionClient;
+import fr.insee.pogues.client.metadata.exceptions.SerieNotFoundException;
 import fr.insee.pogues.client.metadata.model.ddias.Unit;
 import fr.insee.pogues.client.metadata.model.magma.fusion.Label;
 import fr.insee.pogues.client.metadata.model.magma.fusion.Serie;
 import fr.insee.pogues.client.metadata.model.magma.fusion.SerieMetadata;
 import fr.insee.pogues.domain.entity.db.DDIAgencyDB;
-import fr.insee.pogues.exception.metadata.DDIAgencyAlreadyExists;
-import fr.insee.pogues.exception.metadata.DDIAgencyNotFound;
+import fr.insee.pogues.domain.entity.db.InternalSerieDB;
+import fr.insee.pogues.exception.metadata.*;
+import fr.insee.pogues.mapper.SerieMapper;
 import fr.insee.pogues.model.dto.metadata.AgencyDto;
 import fr.insee.pogues.model.dto.metadata.SerieDto;
 import fr.insee.pogues.persistence.repository.jpa.DDIAgencyRepository;
+import fr.insee.pogues.persistence.repository.jpa.InternalSerieRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +24,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -38,11 +43,14 @@ public class MetadataServiceTest {
     @Mock
     private DDIAgencyRepository ddiAgencyRepository;
 
+    @Mock
+    private InternalSerieRepository internalSerieRepository;
+
     private MetadataServiceImpl metadataService;
 
     @BeforeEach
     void init() {
-        metadataService = new MetadataServiceImpl(ddiasClient, magmaFusionClient, ddiAgencyRepository);
+        metadataService = new MetadataServiceImpl(ddiasClient, magmaFusionClient, ddiAgencyRepository, internalSerieRepository, new SerieMapper());
     }
 
     @Test
@@ -67,31 +75,28 @@ public class MetadataServiceTest {
     @Test
     @DisplayName("Should convert all series into DTO")
     void getAllSeries_success() {
-
-        Serie serie1 = new Serie(
-                "S1",
-                "uri:s1",
-                List.of(
-                        new Label("Population", "en"),
-                        new Label("Population française", "fr")
-                )
-        );
-
-        Serie serie2 = new Serie(
-                "S2",
-                "uri:s2",
-                List.of(
-                        new Label("Logements", "fr")
-                )
-        );
-
         when(magmaFusionClient.getSeries())
-                .thenReturn(List.of(serie1, serie2));
+                .thenReturn(List.of(
+                        new Serie(
+                                "S1",
+                                "uri:s1",
+                                List.of(
+                                        new Label("Population", "en"),
+                                        new Label("Population française", "fr")
+                                )),
+                        new Serie(
+                                "S2",
+                                "uri:s2",
+                                List.of(
+                                        new Label("Logements", "fr")
+                                )
+                        )));
+        when(internalSerieRepository.findAll())
+                .thenReturn(List.of(new InternalSerieDB("pogues_s1", "uri", "label pogues", "ALT_LABEL")));
 
         List<SerieDto> result = metadataService.getAllSeries();
 
-        assertEquals(2, result.size());
-
+        assertThat(result).hasSize(3);
         assertEquals("S1", result.getFirst().id());
         assertEquals("uri:s1", result.getFirst().uri());
         assertEquals("Population française", result.getFirst().label());
@@ -99,6 +104,9 @@ public class MetadataServiceTest {
 
         assertEquals("S2", result.get(1).id());
         assertEquals("Logements", result.get(1).label());
+
+        assertEquals("pogues_s1", result.get(2).id());
+        assertEquals("label pogues", result.get(2).label());
 
         verify(magmaFusionClient).getSeries();
     }
@@ -229,5 +237,158 @@ public class MetadataServiceTest {
         Boolean isDeleted = metadataService.deleteAgencyById("fr.insee");
 
         assertTrue(isDeleted);
+    }
+
+    @Test
+    @DisplayName("Should return internal serie details when id starts with the internal serie prefix")
+    void getSerieDetailsById_internalSerie_success() {
+        String serieId = "pogues_s1";
+
+        InternalSerieDB internalSerie = new InternalSerieDB(
+                serieId,
+                "uri:internal:s1",
+                "Série interne",
+                "SERIE_INTERNE"
+        );
+
+        when(internalSerieRepository.findById(serieId))
+                .thenReturn(Optional.of(internalSerie));
+
+        SerieDto result = metadataService.getSerieDetailsById(serieId);
+
+        assertThat(result)
+                .isEqualTo(new SerieDto(
+                        serieId,
+                        "uri:internal:s1",
+                        "Série interne",
+                        "SERIE_INTERNE"
+                ));
+
+        verify(internalSerieRepository).findById(serieId);
+        verifyNoInteractions(magmaFusionClient);
+    }
+
+    @Test
+    @DisplayName("Should throw SerieNotFoundException when internal serie does not exist")
+    void getSerieDetailsById_internalSerie_notFound() {
+        String serieId = "pogues_unknown";
+
+        when(internalSerieRepository.findById(serieId))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> metadataService.getSerieDetailsById(serieId))
+                .isInstanceOf(SerieNotFoundException.class)
+                .hasMessage("Serie (id:pogues_unknown) not found");
+
+        verify(internalSerieRepository).findById(serieId);
+        verifyNoInteractions(magmaFusionClient);
+    }
+
+    @Test
+    @DisplayName("Should create internal serie when id, label and altLabel are valid")
+    void createInternalSerie_success() {
+        SerieDto input = new SerieDto("pogues_s1", "uri:s1", "Population française", "POP");
+
+        when(internalSerieRepository.existsById("pogues_s1")).thenReturn(false);
+        when(internalSerieRepository.save(any()))
+                .thenReturn(new InternalSerieDB("pogues_s1", "uri:s1", "Population française", "POP"));
+
+        SerieDto result = metadataService.createInternalSerie(input);
+
+        assertThat(result.id()).isEqualTo("pogues_s1");
+        assertThat(result.label()).isEqualTo("Population française");
+        assertThat(result.altLabel()).isEqualTo("POP");
+    }
+
+    @Test
+    @DisplayName("Should reject id not starting with the internal serie prefix")
+    void createInternalSerie_invalidPrefix() {
+        SerieDto input = new SerieDto("s1", "uri:s1", "Population", "POP");
+
+        assertThatThrownBy(() -> metadataService.createInternalSerie(input))
+                .isInstanceOf(InternalSerieInvalid.class);
+
+        verifyNoInteractions(internalSerieRepository);
+    }
+
+    @Test
+    @DisplayName("Should reject id containing spaces or special characters")
+    void createInternalSerie_invalidCharacters() {
+        SerieDto input = new SerieDto("pogues_s 1!", "uri:s1", "Population", "POP");
+
+        assertThatThrownBy(() -> metadataService.createInternalSerie(input))
+                .isInstanceOf(InternalSerieInvalid.class);
+
+        verifyNoInteractions(internalSerieRepository);
+    }
+
+    @Test
+    @DisplayName("Should reject altLabel longer than or equal to label")
+    void createInternalSerie_altLabelTooLong() {
+        SerieDto input = new SerieDto("pogues_s1", "uri:s1", "Pop", "Population");
+
+        assertThatThrownBy(() -> metadataService.createInternalSerie(input))
+                .isInstanceOf(InternalSerieInvalid.class);
+
+        verifyNoInteractions(internalSerieRepository);
+    }
+
+    @Test
+    @DisplayName("Should reject altLabel null or empty")
+    void createInternalSerie_altLabelBlank() {
+        SerieDto input = new SerieDto("pogues_s1", "uri:s1", "Population", "");
+
+        assertThatThrownBy(() -> metadataService.createInternalSerie(input))
+                .isInstanceOf(InternalSerieInvalid.class)
+                .hasMessage("Internal serie altLabel must be defined, id: pogues_s1");
+
+        verifyNoInteractions(internalSerieRepository);
+    }
+
+    @Test
+    @DisplayName("Should reject altLabel null")
+    void createInternalSerie_altLabelNull() {
+        SerieDto input = new SerieDto("pogues_s1", "uri:s1", "Population", null);
+
+        assertThatThrownBy(() -> metadataService.createInternalSerie(input))
+                .isInstanceOf(InternalSerieInvalid.class)
+                .hasMessage("Internal serie altLabel must be defined, id: pogues_s1");
+
+        verifyNoInteractions(internalSerieRepository);
+    }
+
+    @Test
+    @DisplayName("Should throw conflict when internal serie id already exists")
+    void createInternalSerie_alreadyExists() {
+        SerieDto input = new SerieDto("pogues_s1", "uri:s1", "Population", "POP");
+
+        when(internalSerieRepository.existsById("pogues_s1")).thenReturn(true);
+
+        assertThatThrownBy(() -> metadataService.createInternalSerie(input))
+                .isInstanceOf(InternalSerieAlreadyExists.class);
+
+        verify(internalSerieRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should delete internal serie when id exists")
+    void deleteInternalSerie_success() {
+        when(internalSerieRepository.existsById("pogues_s1")).thenReturn(true);
+
+        Boolean result = metadataService.deleteInternalSerieById("pogues_s1");
+
+        assertThat(result).isTrue();
+        verify(internalSerieRepository).deleteById("pogues_s1");
+    }
+
+    @Test
+    @DisplayName("Should throw not found when internal serie id does not exist")
+    void deleteInternalSerie_notFound() {
+        when(internalSerieRepository.existsById("pogues_unknown")).thenReturn(false);
+
+        assertThatThrownBy(() -> metadataService.deleteInternalSerieById("pogues_unknown"))
+                .isInstanceOf(InternalSerieNotFound.class);
+
+        verify(internalSerieRepository, never()).deleteById(any());
     }
 }

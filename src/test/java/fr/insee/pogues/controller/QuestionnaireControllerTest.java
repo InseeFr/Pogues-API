@@ -22,7 +22,7 @@ class QuestionnaireControllerTest {
 
     @BeforeEach
     void beforeEach() {
-        ApplicationProperties fooProperties = new ApplicationProperties("localhost", "http", null, null, null, null, null, null);
+        ApplicationProperties fooProperties = new ApplicationProperties("localhost", "http", null, null, null, "Pogues", "latest",null, null, null);
         questionnaireServiceStub = new QuestionnaireServiceStub();
         questionnaireController = new QuestionnaireController(
                 fooProperties, questionnaireServiceStub, null, null, null, null,
