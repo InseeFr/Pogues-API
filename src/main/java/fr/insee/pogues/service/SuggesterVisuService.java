@@ -1,6 +1,7 @@
 package fr.insee.pogues.service;
 
 
+import fr.insee.pogues.configuration.properties.RegistryProperties;
 import fr.insee.pogues.exception.PoguesDeserializationException;
 import fr.insee.pogues.model.CodeList;
 import fr.insee.pogues.model.Questionnaire;
@@ -8,6 +9,7 @@ import fr.insee.pogues.model.dto.nomenclatures.NomenclatureUrlDTO;
 import fr.insee.pogues.persistence.service.IQuestionnaireService;
 import fr.insee.pogues.utils.PoguesDeserializer;
 import fr.insee.pogues.utils.model.CodesList;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
@@ -23,16 +25,11 @@ import static fr.insee.pogues.utils.json.JSONFunctions.jsonStringtoJsonNode;
  * These method are usefull for visualization with nomenclatures
  */
 @Service
+@AllArgsConstructor
 public class SuggesterVisuService {
 
-    @Value("${application.registry.nomenclature.host}")
-    private String nomenclatureRegistryHost;
-
+    private final RegistryProperties registryProperties;
     private final IQuestionnaireService questionnaireService;
-
-    public SuggesterVisuService(IQuestionnaireService questionnaireService) {
-        this.questionnaireService = questionnaireService;
-    }
 
     /**
      * Retrieve from questionnaire id, the list of nomenclature's id and url used by the questionnaire.
@@ -52,7 +49,7 @@ public class SuggesterVisuService {
      */
     public List<NomenclatureUrlDTO> computeNomenclaturesUrls(List<String> nomenclatureIds) {
         return nomenclatureIds.stream()
-                .map(id -> new NomenclatureUrlDTO(id, String.format("%s/codes-lists/%s", nomenclatureRegistryHost, id)))
+                .map(id -> new NomenclatureUrlDTO(id, String.format("%s/codes-lists/%s", registryProperties.nomenclature().resolveProxyHost(), id)))
                 .toList();
     }
 

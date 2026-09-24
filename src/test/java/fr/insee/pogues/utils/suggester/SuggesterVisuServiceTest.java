@@ -1,5 +1,6 @@
 package fr.insee.pogues.utils.suggester;
 
+import fr.insee.pogues.configuration.properties.RegistryProperties;
 import fr.insee.pogues.model.Questionnaire;
 import fr.insee.pogues.model.dto.nomenclatures.NomenclatureUrlDTO;
 import fr.insee.pogues.persistence.service.IQuestionnaireService;
@@ -25,14 +26,21 @@ class SuggesterVisuServiceTest {
     @Mock
     IQuestionnaireService questionnaireService;
 
-    SuggesterVisuService suggesterVisuService;
-
     static final String REGISTRY_HOST = "https://registry.example.com";
+    static final String REGISTRY_PROXY_HOST = "https://gateway.example.com/nomenclatures-proxy";
+
+    private final RegistryProperties registryProperties = new RegistryProperties(
+            new RegistryProperties.RegistryEndpoint(
+                    REGISTRY_HOST, REGISTRY_HOST),
+            new RegistryProperties.RegistryEndpoint(
+                    REGISTRY_HOST, REGISTRY_PROXY_HOST)
+    );
+
+    SuggesterVisuService suggesterVisuService;
 
     @BeforeEach
     void init() {
-        suggesterVisuService = new SuggesterVisuService(questionnaireService);
-        ReflectionTestUtils.setField(suggesterVisuService, "nomenclatureRegistryHost", REGISTRY_HOST);
+        suggesterVisuService = new SuggesterVisuService(registryProperties, questionnaireService);
     }
 
     @Test
@@ -41,8 +49,8 @@ class SuggesterVisuServiceTest {
         List<NomenclatureUrlDTO> result = suggesterVisuService.computeNomenclaturesUrls(List.of("L_PAYS", "L_DEPNAIS"));
 
         assertThat(result).containsExactly(
-                new NomenclatureUrlDTO("L_PAYS", REGISTRY_HOST + "/codes-lists/L_PAYS"),
-                new NomenclatureUrlDTO("L_DEPNAIS", REGISTRY_HOST + "/codes-lists/L_DEPNAIS")
+                new NomenclatureUrlDTO("L_PAYS", REGISTRY_PROXY_HOST + "/codes-lists/L_PAYS"),
+                new NomenclatureUrlDTO("L_DEPNAIS", REGISTRY_PROXY_HOST + "/codes-lists/L_DEPNAIS")
         );
     }
 
@@ -56,7 +64,7 @@ class SuggesterVisuServiceTest {
 
         assertThat(result).hasSize(29);
         assertThat(result).allSatisfy(nomenclature ->
-                assertThat(nomenclature.url()).isEqualTo(REGISTRY_HOST + "/codes-lists/" + nomenclature.id())
+                assertThat(nomenclature.url()).isEqualTo(REGISTRY_PROXY_HOST + "/codes-lists/" + nomenclature.id())
         );
     }
 
@@ -65,7 +73,7 @@ class SuggesterVisuServiceTest {
     void createJsonNomenclaturesForVisu() {
         JsonNode result = suggesterVisuService.createJsonNomenclaturesForVisu(List.of("L_PAYS", "L_DEPNAIS"));
 
-        assertThat(result.get("L_PAYS").asString()).isEqualTo(REGISTRY_HOST + "/codes-lists/L_PAYS");
-        assertThat(result.get("L_DEPNAIS").asString()).isEqualTo(REGISTRY_HOST + "/codes-lists/L_DEPNAIS");
+        assertThat(result.get("L_PAYS").asString()).isEqualTo(REGISTRY_PROXY_HOST + "/codes-lists/L_PAYS");
+        assertThat(result.get("L_DEPNAIS").asString()).isEqualTo(REGISTRY_PROXY_HOST + "/codes-lists/L_DEPNAIS");
     }
 }

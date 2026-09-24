@@ -53,16 +53,7 @@ application:
       query-params:
         questionnaire: questionnaire
         nomenclatures: nomenclature
-
-  # See source code for v2: https://github.com/InseeFr/Stromae/tree/v2-master
-  stromaev2:
-    vis:
-      host:
-      path: /visualize
-      query-params:
-        questionnaire: questionnaire
-        nomenclatures: nomenclature
-
+        
   stromaev3:
     vis:
       host:
@@ -81,8 +72,12 @@ application:
   registry:
     questionnaire:
       host:
+      # proxy-host if host may be accessible threw open web by UI, registry may be exposed with Api Gateway like Gravitee
+      proxy-host:
     nomenclature:
       host:
+      # proxy-host if host may be accessible threw open web by UI, registry may be exposed with Api Gateway like Gravitee
+      proxy-host:
 
   metadata:
     # For codeList, nomenclature and units (it's a codeList)

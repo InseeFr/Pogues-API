@@ -2,13 +2,13 @@ package fr.insee.pogues.configuration.client;
 
 import fr.insee.pogues.client.interceptor.AuthInterceptor;
 import fr.insee.pogues.configuration.auth.user.AuthenticationHelper;
+import fr.insee.pogues.configuration.properties.RegistryProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Configuration
 @RequiredArgsConstructor
@@ -16,19 +16,16 @@ public class ClientApiConfig {
 
     private final AuthenticationHelper authenticationHelper;
     private final RestClient.Builder restClientBuilder;
+    private final RegistryProperties registryProperties;
 
     @Bean("questionnaireRegistryApiRestClient")
-    public RestClient questionnaireRegistryApiRestClient(
-            @Value("${application.registry.questionnaire.host}") String registryHost
-    ) {
-        return buildRestClient(registryHost, new AuthInterceptor(authenticationHelper));
+    public RestClient questionnaireRegistryApiRestClient() {
+        return buildRestClient(registryProperties.questionnaire().host(), new AuthInterceptor(authenticationHelper));
     }
 
     @Bean("nomenclatureRegistryApiRestClient")
-    public RestClient nomenclatureRegistryApiRestClient(
-            @Value("${application.registry.nomenclature.host}") String registryHost
-    ) {
-        return buildRestClient(registryHost, new AuthInterceptor(authenticationHelper));
+    public RestClient nomenclatureRegistryApiRestClient() {
+        return buildRestClient(registryProperties.nomenclature().host(), new AuthInterceptor(authenticationHelper));
     }
 
     @Bean("magmaFusionApiRestClient")

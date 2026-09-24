@@ -1,6 +1,7 @@
 package fr.insee.pogues.configuration.client;
 
 import fr.insee.pogues.configuration.auth.user.AuthenticationHelper;
+import fr.insee.pogues.configuration.properties.RegistryProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ClientApiConfigTest {
@@ -28,16 +30,19 @@ class ClientApiConfigTest {
     private RestClient.Builder restClientBuilder;
 
     @Mock
-    private RestClient restClient;
+    private RegistryProperties registryProperties;
+
+    @Mock
+    private RestClient globalRestClient;
 
     private ClientApiConfig clientApiConfig;
 
     @BeforeEach
     void setUp() {
-        clientApiConfig = new ClientApiConfig(authenticationHelper, restClientBuilder);
+        clientApiConfig = new ClientApiConfig(authenticationHelper, restClientBuilder, registryProperties);
         lenient().when(restClientBuilder.clone()).thenReturn(restClientBuilder);
         lenient().when(restClientBuilder.baseUrl((String) any())).thenReturn(restClientBuilder);
-        lenient().when(restClientBuilder.build()).thenReturn(restClient);
+        lenient().when(restClientBuilder.build()).thenReturn(globalRestClient);
     }
 
     @Nested
@@ -82,7 +87,9 @@ class ClientApiConfigTest {
         @Test
         @DisplayName("should build a RestClient configured with the given host")
         void should_build_rest_client_with_host() {
-            RestClient restClient = clientApiConfig.questionnaireRegistryApiRestClient("http://survey-registry.test/base-api");
+
+            when(registryProperties.questionnaire()).thenReturn(new RegistryProperties.RegistryEndpoint("http://survey-registry.test/base-api",""));
+            RestClient restClient = clientApiConfig.questionnaireRegistryApiRestClient();
 
             assertThat(restClient).isNotNull();
         }
@@ -90,7 +97,8 @@ class ClientApiConfigTest {
         @Test
         @DisplayName("should throw when host is missing")
         void should_throw_when_host_is_missing() {
-            assertThatThrownBy(() -> clientApiConfig.questionnaireRegistryApiRestClient(null))
+            when(registryProperties.questionnaire()).thenReturn(new RegistryProperties.RegistryEndpoint(null, null));
+            assertThatThrownBy(() -> clientApiConfig.questionnaireRegistryApiRestClient())
                     .isInstanceOf(IllegalStateException.class);
         }
     }
@@ -102,7 +110,8 @@ class ClientApiConfigTest {
         @Test
         @DisplayName("should build a RestClient configured with the given host")
         void should_build_rest_client_with_host() {
-            RestClient restClient = clientApiConfig.nomenclatureRegistryApiRestClient("http://survey-registry.test/base-api");
+            when(registryProperties.nomenclature()).thenReturn(new RegistryProperties.RegistryEndpoint("http://survey-registry.test/base-api",""));
+            RestClient restClient = clientApiConfig.nomenclatureRegistryApiRestClient();
 
             assertThat(restClient).isNotNull();
         }
@@ -110,7 +119,8 @@ class ClientApiConfigTest {
         @Test
         @DisplayName("should throw when host is missing")
         void should_throw_when_host_is_missing() {
-            assertThatThrownBy(() -> clientApiConfig.nomenclatureRegistryApiRestClient(null))
+            when(registryProperties.nomenclature()).thenReturn(new RegistryProperties.RegistryEndpoint(null,null));
+            assertThatThrownBy(() -> clientApiConfig.nomenclatureRegistryApiRestClient())
                     .isInstanceOf(IllegalStateException.class);
         }
     }

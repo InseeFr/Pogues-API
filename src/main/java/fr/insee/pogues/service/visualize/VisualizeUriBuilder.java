@@ -2,11 +2,12 @@ package fr.insee.pogues.service.visualize;
 
 import fr.insee.pogues.client.surveyregistry.model.CollectionInstrumentCodesList;
 import fr.insee.pogues.client.surveyregistry.model.CollectionInstrumentMetadataDto;
+import fr.insee.pogues.configuration.properties.RegistryProperties;
 import fr.insee.pogues.configuration.properties.visualize.InterviewerUiVisualizeProperties;
 import fr.insee.pogues.configuration.properties.visualize.VisualizeQueryParams;
 import fr.insee.pogues.configuration.properties.visualize.WebUiVisualizeProperties;
 import fr.insee.pogues.domain.enums.generation.CollectMode;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import tools.jackson.databind.ObjectMapper;
@@ -23,19 +24,12 @@ import java.util.UUID;
 import static fr.insee.pogues.client.surveyregistry.questionnaire.QuestionnaireRegistryRestClient.COLLECTION_INSTRUMENTS_PATH;
 
 @Component
+@AllArgsConstructor
 public class VisualizeUriBuilder {
 
     private final InterviewerUiVisualizeProperties interviewerUiProperties;
     private final WebUiVisualizeProperties webUiProperties;
-    private final String questionnaireRegistryHost;
-
-    public VisualizeUriBuilder(InterviewerUiVisualizeProperties interviewerUiProperties,
-                               WebUiVisualizeProperties webUiProperties,
-                               @Value("${application.registry.questionnaire.host}") String questionnaireRegistryHost) {
-        this.interviewerUiProperties = interviewerUiProperties;
-        this.webUiProperties = webUiProperties;
-        this.questionnaireRegistryHost = questionnaireRegistryHost;
-    }
+    private final RegistryProperties registryProperties;
 
     private static final ObjectMapper objectMapper = JsonMapper.builder().build();
 
@@ -71,7 +65,8 @@ public class VisualizeUriBuilder {
     private String buildQuestionnaireUri(UUID collectionInstrumentId) {
         return UriComponentsBuilder
                 .fromUriString("{registryHost}/" + COLLECTION_INSTRUMENTS_PATH + "/{collectionInstrumentId}")
-                .buildAndExpand(questionnaireRegistryHost, collectionInstrumentId)
+                // use proxy host
+                .buildAndExpand(registryProperties.questionnaire().resolveProxyHost(), collectionInstrumentId)
                 .encode()
                 .toUriString();
     }
@@ -79,9 +74,19 @@ public class VisualizeUriBuilder {
     private String buildNomenclaturesJson(List<CollectionInstrumentCodesList> codesLists){
         Map<UUID, URI> result = new HashMap<>();
         for(CollectionInstrumentCodesList codesList : codesLists){
-            result.put(codesList.id(), codesList.url());
+            result.put(codesList.id(), proxifyNomenclatureUri(codesList.url()));
         }
         return objectMapper.writeValueAsString(result);
+    }
+
+    /**
+     * Replaces the nomenclature host by its proxy host in the given code list URI,
+     * preserving the rest of the URI (path, query, fragment) unchanged.
+     */
+    public URI proxifyNomenclatureUri(URI url) {
+        String host = registryProperties.nomenclature().host();
+        String proxyHost = registryProperties.nomenclature().resolveProxyHost();
+        return URI.create(url.toString().replace(host, proxyHost));
     }
 
     private String encodeQueryParamValue(String rawValue) {

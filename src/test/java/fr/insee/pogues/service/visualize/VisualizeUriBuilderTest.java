@@ -2,6 +2,7 @@ package fr.insee.pogues.service.visualize;
 
 import fr.insee.pogues.client.surveyregistry.model.CollectionInstrumentCodesList;
 import fr.insee.pogues.client.surveyregistry.model.CollectionInstrumentMetadataDto;
+import fr.insee.pogues.configuration.properties.RegistryProperties;
 import fr.insee.pogues.configuration.properties.visualize.InterviewerUiVisualizeProperties;
 import fr.insee.pogues.configuration.properties.visualize.VisualizeQueryParams;
 import fr.insee.pogues.configuration.properties.visualize.WebUiVisualizeProperties;
@@ -38,8 +39,15 @@ class VisualizeUriBuilderTest {
                     new VisualizeQueryParams("source", "nomenclatures")
             );
 
+    private final RegistryProperties registryProperties = new RegistryProperties(
+            new RegistryProperties.RegistryEndpoint(
+                    "https://registry.example.com", "https://registry.example.com"),
+            new RegistryProperties.RegistryEndpoint(
+                    "https://nomenclatures.example.com", "https://gateway.example.com/nomenclatures-proxy")
+    );
+
     private final VisualizeUriBuilder visualizeUriBuilder =
-            new VisualizeUriBuilder(interviewerUiProperties, webUiProperties, "https://registry.example.com");
+            new VisualizeUriBuilder(interviewerUiProperties, webUiProperties, registryProperties);
 
     @Test
     @DisplayName("should build the URI using the Web UI properties when mode is CAWI")
@@ -108,7 +116,7 @@ class VisualizeUriBuilderTest {
     }
 
     @Test
-    @DisplayName("should encode the collection instrument id as a collection-instrument path URI")
+    @DisplayName("should encode the collection instrument id as a collection-instrument path URI using the registry proxy host")
     void should_encode_collection_instrument_id_as_path_uri() {
         // Given
         CollectionInstrumentMetadataDto collectionInstrument = aCollectionInstrument(
@@ -119,11 +127,12 @@ class VisualizeUriBuilderTest {
 
         // Then
         assertThat(result.getQuery())
+                .contains("registry.example.com")
                 .contains("collection-instruments/" + COLLECTION_INSTRUMENT_ID);
     }
 
     @Test
-    @DisplayName("should include each codes list id and url when codes lists are present")
+    @DisplayName("should include each codes list id and proxified url when codes lists are present")
     void should_include_codes_lists_when_present() {
         // Given
         UUID codesListId = UUID.fromString("22222222-2222-2222-2222-222222222222");
@@ -138,7 +147,8 @@ class VisualizeUriBuilderTest {
         // Then
         assertThat(result.toString())
                 .contains(codesListId.toString())
-                .contains("nomenclatures.example.com")
+                .contains("gateway.example.com%2Fnomenclatures-proxy")
+                .doesNotContain("nomenclatures.example.com")
                 .contains("%22") // quotes in JSON encoded
                 .doesNotContain("{\"");
     }
@@ -155,6 +165,20 @@ class VisualizeUriBuilderTest {
 
         // Then
         assertThat(result.getQuery()).contains("nomenclatures=");
+    }
+
+    @Test
+    @DisplayName("should replace the nomenclature host by its proxy host while keeping path, query and fragment")
+    void should_proxify_nomenclature_uri() {
+        // Given
+        URI url = URI.create("https://nomenclatures.example.com/codes-lists/test?foo=bar#frag");
+
+        // When
+        URI result = visualizeUriBuilder.proxifyNomenclatureUri(url);
+
+        // Then
+        assertThat(result)
+                .hasToString("https://gateway.example.com/nomenclatures-proxy/codes-lists/test?foo=bar#frag");
     }
 
     private CollectionInstrumentMetadataDto aCollectionInstrument(

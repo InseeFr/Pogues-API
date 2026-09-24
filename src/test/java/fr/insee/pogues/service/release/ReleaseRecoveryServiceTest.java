@@ -13,7 +13,6 @@ import fr.insee.pogues.mapper.ReleaseRequestMapper;
 import fr.insee.pogues.model.dto.release.*;
 import fr.insee.pogues.persistence.repository.jpa.ReleaseRequestRepository;
 import fr.insee.pogues.persistence.service.IQuestionnaireService;
-import fr.insee.pogues.service.stub.QuestionnaireServiceStub;
 import fr.insee.pogues.service.visualize.VisualizeUriBuilder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
