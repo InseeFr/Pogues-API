@@ -6,6 +6,7 @@ import fr.insee.pogues.exception.questionnaire.QuestionnaireNotFoundException;
 import fr.insee.pogues.exception.questionnaire.composition.DeReferencingException;
 import fr.insee.pogues.exception.questionnaire.composition.NullReferenceException;
 import fr.insee.pogues.model.Questionnaire;
+import fr.insee.pogues.model.dto.metadata.StampDto;
 import tools.jackson.databind.JsonNode;
 
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
 public interface IQuestionnaireService {
     List<JsonNode> getQuestionnairesMetadata(String owner) throws Exception;
 
-    List<JsonNode> getQuestionnairesStamps() throws Exception;
+    List<StampDto> getQuestionnairesStamps() throws Exception;
 
     List<JsonNode> getQuestionnairesByOwner(String id) throws Exception;
 

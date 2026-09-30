@@ -6,6 +6,7 @@ import fr.insee.pogues.configuration.auth.user.User;
 import fr.insee.pogues.configuration.properties.ApplicationProperties;
 import fr.insee.pogues.exception.validation.QuestionnaireIdentifierException;
 import fr.insee.pogues.model.Questionnaire;
+import fr.insee.pogues.model.dto.metadata.StampDto;
 import fr.insee.pogues.persistence.service.IQuestionnaireService;
 import fr.insee.pogues.persistence.service.JSONLunaticService;
 import fr.insee.pogues.persistence.service.PublicEnemyVariableService;
@@ -154,9 +155,8 @@ public class QuestionnaireController {
             @ApiResponse(responseCode = "401", description = "Unauthorized")
     })
 	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
-	public ResponseEntity<Object> getQuestionnaireStamps() throws Exception {
-        List<JsonNode> questionnairesStamps = new ArrayList<>(questionnaireService.getQuestionnairesStamps());
-		return ResponseEntity.status(HttpStatus.OK).body(questionnairesStamps);
+	public ResponseEntity<List<StampDto>> getQuestionnaireStamps() throws Exception {
+		return ResponseEntity.status(HttpStatus.OK).body(questionnaireService.getQuestionnairesStamps());
 	}
 	
 

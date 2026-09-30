@@ -4,6 +4,7 @@ import fr.insee.pogues.exception.PoguesException;
 import fr.insee.pogues.exception.PoguesSerializationException;
 import fr.insee.pogues.exception.questionnaire.QuestionnaireNotFoundException;
 import fr.insee.pogues.model.Questionnaire;
+import fr.insee.pogues.model.dto.metadata.StampDto;
 import fr.insee.pogues.persistence.service.IQuestionnaireService;
 import fr.insee.pogues.utils.PoguesDeserializer;
 import fr.insee.pogues.utils.PoguesSerializer;
@@ -28,7 +29,7 @@ public class QuestionnaireServiceStub implements IQuestionnaireService {
     }
 
     @Override
-    public List<JsonNode> getQuestionnairesStamps() throws Exception {
+    public List<StampDto> getQuestionnairesStamps() throws Exception {
         return List.of();
     }
 

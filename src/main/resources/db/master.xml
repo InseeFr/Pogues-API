@@ -17,4 +17,5 @@
     <include file="changelog/500_ddi_agency.xml" relativeToChangelogFile="true"/>
     <include file="changelog/600_questionnaire_release_request.xml" relativeToChangelogFile="true"/>
     <include file="changelog/700_internal_serie.xml" relativeToChangelogFile="true"/>
+    <include file="changelog/800_generated_columns.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

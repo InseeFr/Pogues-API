@@ -1,6 +1,7 @@
 package fr.insee.pogues.persistence.service;
 
 import fr.insee.pogues.configuration.auth.security.restrictions.StampsRestrictionsService;
+import fr.insee.pogues.configuration.cache.CacheName;
 import fr.insee.pogues.domain.entity.db.QuestionnaireEntity;
 import fr.insee.pogues.exception.PoguesDeserializationException;
 import fr.insee.pogues.exception.questionnaire.composition.DeReferencingException;
@@ -8,6 +9,7 @@ import fr.insee.pogues.exception.questionnaire.composition.NullReferenceExceptio
 import fr.insee.pogues.exception.PoguesException;
 import fr.insee.pogues.exception.questionnaire.QuestionnaireNotFoundException;
 import fr.insee.pogues.model.Questionnaire;
+import fr.insee.pogues.model.dto.metadata.StampDto;
 import fr.insee.pogues.persistence.exceptions.EntityNotFoundException;
 import fr.insee.pogues.persistence.exceptions.NonUniqueResultException;
 import fr.insee.pogues.persistence.repository.QuestionnaireRepository;
@@ -19,6 +21,7 @@ import fr.insee.pogues.utils.PoguesDeserializer;
 import fr.insee.pogues.utils.PoguesSerializer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 
@@ -26,6 +29,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static fr.insee.pogues.utils.json.JSONFunctions.jsonStringtoJsonNode;
 
@@ -55,8 +59,12 @@ public class QuestionnaireService implements IQuestionnaireService{
         return questionnaireRepository.getMetaQuestionnaire(owner);
     }
 
-    public List<JsonNode> getQuestionnairesStamps() throws Exception {
-        return questionnaireRepository.getStamps();
+    @Cacheable(CacheName.STAMPS)
+    public List<StampDto> getQuestionnairesStamps() {
+        return questionnaireJpaRepository.findDistinctOwners().stream()
+                .filter(Objects::nonNull)
+                .map(stamp -> new StampDto(stamp, stamp))
+                .toList();
     }
 
     /**

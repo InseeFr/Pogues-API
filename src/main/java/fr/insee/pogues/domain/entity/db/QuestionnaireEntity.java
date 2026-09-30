@@ -8,7 +8,6 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.*;
-import tools.jackson.databind.JsonNode;
 
 
 @Entity
@@ -16,7 +15,6 @@ import tools.jackson.databind.JsonNode;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
 public class QuestionnaireEntity {
 
     @Id
@@ -24,5 +22,9 @@ public class QuestionnaireEntity {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "data", columnDefinition = "jsonb")
+    @Setter
     private String data;
+
+    @Column(name = "owner", insertable = false, updatable = false)
+    private String owner;
 }

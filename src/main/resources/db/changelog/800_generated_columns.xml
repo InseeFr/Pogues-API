@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:pro="http://www.liquibase.org/xml/ns/pro"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-latest.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet author="admin (generated)" id="1790553600000-1">
+        <!-- Delete existing index (100_index_pogues.xml) -->
+        <sql dbms="postgresql" endDelimiter=";">DROP INDEX idx_pogues_owner;</sql>
+        <sql dbms="postgresql" endDelimiter=";">
+            ALTER TABLE pogues ADD COLUMN owner TEXT GENERATED ALWAYS AS (data ->> 'owner') STORED;
+        </sql>
+        <sql dbms="postgresql" endDelimiter=";">CREATE INDEX idx_pogues_owner ON pogues (owner);</sql>
+        <rollback>
+            <sql dbms="postgresql" endDelimiter=";">DROP INDEX idx_pogues_owner;</sql>
+            <sql dbms="postgresql" endDelimiter=";">CREATE INDEX idx_pogues_owner ON pogues ((data ->> 'owner'));</sql>
+            <sql dbms="postgresql" endDelimiter=";">ALTER TABLE pogues DROP COLUMN owner;</sql>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

@@ -66,7 +66,7 @@ class QuestionnaireServiceTest {
         q1.putArray("Child");
         when(questionnaireJpaRepository.findById("foo"))
                 .thenReturn(
-                        Optional.of(new QuestionnaireEntity("foo", q1.toPrettyString())));
+                        Optional.of(new QuestionnaireEntity("foo", q1.toPrettyString(), "me")));
         when(modelCleaningService.cleanModel(q1)).thenReturn(q1);
         JsonNode q2 = questionnaireService.getQuestionnaireByID("foo");
         assertEquals(q1, q2);

@@ -27,6 +27,6 @@ public class StampsRestrictionsServiceImpl implements StampsRestrictionsService{
 	public boolean isQuestionnaireOwner(String stamp) {
 		User user = getUser();
 		log.info("Check if user is the questionnaire's owner");
-		return user.getStamp().equals(stamp);
+		return stamp.equals(user.getStamp());
 	}
 }

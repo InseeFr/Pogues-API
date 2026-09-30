@@ -3,7 +3,9 @@ package fr.insee.pogues.persistence.repository;
 import fr.insee.pogues.configuration.auth.security.restrictions.StampsRestrictionsService;
 import fr.insee.pogues.configuration.cache.CacheName;
 import fr.insee.pogues.exception.PoguesException;
+import fr.insee.pogues.exception.questionnaire.QuestionnaireNotFoundException;
 import fr.insee.pogues.persistence.exceptions.NonUniqueResultException;
+import fr.insee.pogues.persistence.repository.jpa.QuestionnaireJpaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.postgresql.util.PGobject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.sql.SQLException;
 import java.util.Collections;
@@ -36,6 +39,9 @@ public class QuestionnaireRepositoryImpl implements QuestionnaireRepository {
 	
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+
+	@Autowired
+	private QuestionnaireJpaRepository questionnaireJpaRepository;
 
 	@Autowired
 	protected StampsRestrictionsService stampsRestrictionsService;
@@ -78,7 +84,7 @@ public class QuestionnaireRepositoryImpl implements QuestionnaireRepository {
 	public void deleteQuestionnaireByID(String id) throws Exception {
 		JsonNode questionnaire= getQuestionnaireByID(id);
 		//Check rights
-		if (!isUserAuthorized(questionnaire, "Delete")) {
+		if (!isUserAuthorized(id, questionnaire, QuestionnaireAction.DELETE)) {
 			log.info("User not authorized to delete questionnaire {}",id);
 			throw new PoguesException(403, FORBIDDEN, "Only the owner of the questionnaire can delete it");
 		}
@@ -168,9 +174,16 @@ public class QuestionnaireRepositoryImpl implements QuestionnaireRepository {
 	public void createQuestionnaire(JsonNode questionnaire) throws Exception {
 		String qString = "INSERT INTO pogues (id, data) VALUES (?, ?)";
 		String id = questionnaire.get("id").asString();
-		if (null != getQuestionnaireByID(id)) {
+
+		if(questionnaireJpaRepository.existsById(id)) {
 			throw new NonUniqueResultException("Entity already exists");
 		}
+
+		// Ensure that questionnaire is created at stamp user
+		String userStamp = stampsRestrictionsService.getUser().getStamp();
+		ObjectNode questionnaireNode = (ObjectNode) questionnaire;
+		questionnaireNode.put("owner", userStamp);
+
 		PGobject q = new PGobject();
 		q.setType("json");
 		q.setValue(questionnaire.toString());
@@ -186,7 +199,7 @@ public class QuestionnaireRepositoryImpl implements QuestionnaireRepository {
 	 */
 	public void updateQuestionnaire(String id, JsonNode questionnaire) throws Exception {
 		//Check rights
-		if (!isUserAuthorized(questionnaire, "Update")) {
+		if (!isUserAuthorized(id, questionnaire, QuestionnaireAction.UPDATE)) {
 			log.info("User not authorized to modify questionnaire {}", id);
 			throw new PoguesException(403, FORBIDDEN, "Only the owner of the questionnaire can modify it");
 		}
@@ -222,16 +235,28 @@ public class QuestionnaireRepositoryImpl implements QuestionnaireRepository {
 	}
 	
 	private boolean isStampRestricted(String stamp) {
-		return stamp.equals(stampRestricted);
+		return stampRestricted.equals(stamp);
 	}
 	
-	private boolean isUserAuthorized(JsonNode questionnaire, String action) {
+	private boolean isUserAuthorized(String id, JsonNode questionnaire, QuestionnaireAction action) {
 		boolean isAuthorized=true;
-		String stamp = questionnaire.get("owner").asString();
-		if (isStampRestricted(stamp) && !stampsRestrictionsService.isQuestionnaireOwner(stamp)) {
-			isAuthorized=false;
+
+		String nextStamp = questionnaire.get("owner").asString();
+
+		String actualStamp = questionnaireJpaRepository
+				.findOwnerById(id)
+				.orElseThrow(() -> new QuestionnaireNotFoundException(String.format("Questionnaire with id %s does not exist", id)));
+
+		// only user of questionnaire Stamp can update/delete it
+		if (isStampRestricted(actualStamp) && !stampsRestrictionsService.isQuestionnaireOwner(actualStamp)) {
+			isAuthorized = false;
 		}
-		log.info("{} questionnaire {}",action, isAuthorized ? "authorized": "forbidden");
+		// Case of changing stamp, user need access to new stamp
+		if(!actualStamp.equals(nextStamp) && isStampRestricted(nextStamp) && !stampsRestrictionsService.isQuestionnaireOwner(nextStamp)) {
+			isAuthorized = false;
+		}
+		log.info("IsUserAuthorized to {} questionnaire (actual stamp: {}, new stamp: {}): {}",
+				action, actualStamp, nextStamp, isAuthorized);
 		return isAuthorized;
 	}
 
