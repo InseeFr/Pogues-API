@@ -53,13 +53,13 @@ application:
       query-params:
         questionnaire: questionnaire
         nomenclatures: nomenclature
-        
+
   stromaev3:
     vis:
       host:
       path: /visualize
       query-params:
-        questionnaire: questionnaire
+        questionnaire: source
         nomenclatures: nomenclature
 
   # Eno: questionnaire generator
@@ -85,13 +85,6 @@ application:
     ddi-as:
     # For Series & operations
     magma-fusion:
-
-  external-secure-urls:
-    - ${application.registry.questionnaire.host}
-    - ${application.registry.nomenclature.host}
-  external-secure-urls-with-service-account:
-    - ${application.metadata.ddi-as}
-    - ${application.metadata.magma-fusion}
 
 springdoc:
   swagger-ui:
@@ -173,12 +166,18 @@ feature:
       - profile
       - roles
     service-account:
-      enabled: ${feature.oidc.enabled}
-      auth-server-url: https://auth-server.host/auth
-      realm: my-realm
-      client-id: my-client-id
-      client-secret:
-      refresh-margin: 5 # in seconds
+      metadata:
+        refresh-margin: 5 # in seconds
+        auth-server-url: https://auth-server.host/auth
+        realm: my-realm
+        client-id: my-client-id
+        client-secret:
+      questionnaire-registry:
+        refresh-margin: 5 # in seconds
+        auth-server-url: https://auth-server.host/auth
+        realm: my-realm
+        client-id: my-client-id
+        client-secret:
   swagger:
     enabled: true
   database:

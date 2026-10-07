@@ -2,6 +2,7 @@ package fr.insee.pogues.service.metadata;
 
 import fr.insee.pogues.client.metadata.DDIASClient;
 import fr.insee.pogues.client.metadata.MagmaFusionClient;
+import fr.insee.pogues.client.metadata.exceptions.MetadataRepositoryException;
 import fr.insee.pogues.client.metadata.exceptions.SerieNotFoundException;
 import fr.insee.pogues.client.metadata.model.ddias.Unit;
 import fr.insee.pogues.client.metadata.model.magma.fusion.Serie;
@@ -46,8 +47,15 @@ public class MetadataServiceImpl implements MetadataService {
 
     @Override
     @Cacheable(CacheName.UNITS)
-    public List<Unit> getUnits() throws Exception {
-        return ddiasClient.getUnits();
+    public List<Unit> getUnits() {
+        try {
+            return ddiasClient.getUnits();
+        } catch (MetadataRepositoryException e) {
+            log.error("Error retrieving units from Metadata repository (DDI-AS)", e);
+            log.warn("Returning empty list");
+            return List.of();
+        }
+
     }
 
     @Override

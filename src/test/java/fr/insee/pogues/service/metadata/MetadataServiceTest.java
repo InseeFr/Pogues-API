@@ -2,6 +2,7 @@ package fr.insee.pogues.service.metadata;
 
 import fr.insee.pogues.client.metadata.DDIASClient;
 import fr.insee.pogues.client.metadata.MagmaFusionClient;
+import fr.insee.pogues.client.metadata.exceptions.MetadataRepositoryException;
 import fr.insee.pogues.client.metadata.exceptions.SerieNotFoundException;
 import fr.insee.pogues.client.metadata.model.ddias.Unit;
 import fr.insee.pogues.client.metadata.model.magma.fusion.Label;
@@ -55,7 +56,7 @@ public class MetadataServiceTest {
 
     @Test
     @DisplayName("Should return units from DDIAS")
-    void getUnits_success() throws Exception {
+    void getUnits_success() {
 
         List<Unit> units = List.of(
                 new Unit("uri:1", "kg"),
@@ -67,6 +68,20 @@ public class MetadataServiceTest {
         List<Unit> result = metadataService.getUnits();
 
         assertEquals(units, result);
+
+        verify(ddiasClient).getUnits();
+        verifyNoInteractions(magmaFusionClient);
+    }
+
+    @Test
+    @DisplayName("Should return empty list of units if MetadataRepositoryException")
+    void getUnits_fallback() {
+
+        when(ddiasClient.getUnits()).thenThrow(new MetadataRepositoryException("we don't care"));
+
+        List<Unit> result = metadataService.getUnits();
+
+        assertThat(result).isEmpty();
 
         verify(ddiasClient).getUnits();
         verifyNoInteractions(magmaFusionClient);

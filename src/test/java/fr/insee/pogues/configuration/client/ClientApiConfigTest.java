@@ -1,6 +1,8 @@
 package fr.insee.pogues.configuration.client;
 
+import fr.insee.pogues.client.interceptor.ServiceAccountTokenProvider;
 import fr.insee.pogues.configuration.auth.user.AuthenticationHelper;
+import fr.insee.pogues.configuration.properties.OidcServiceAccountProperties;
 import fr.insee.pogues.configuration.properties.RegistryProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -33,13 +35,20 @@ class ClientApiConfigTest {
     private RegistryProperties registryProperties;
 
     @Mock
+    private ServiceAccountTokenProvider serviceAccountTokenProvider;
+    @Mock
+    private OidcServiceAccountProperties oidcServiceAccountProperties;
+
+    @Mock
     private RestClient globalRestClient;
 
     private ClientApiConfig clientApiConfig;
 
     @BeforeEach
     void setUp() {
-        clientApiConfig = new ClientApiConfig(authenticationHelper, restClientBuilder, registryProperties);
+        clientApiConfig = new ClientApiConfig(
+                authenticationHelper, serviceAccountTokenProvider, oidcServiceAccountProperties,
+                restClientBuilder, registryProperties);
         lenient().when(restClientBuilder.clone()).thenReturn(restClientBuilder);
         lenient().when(restClientBuilder.baseUrl((String) any())).thenReturn(restClientBuilder);
         lenient().when(restClientBuilder.build()).thenReturn(globalRestClient);
@@ -146,6 +155,26 @@ class ClientApiConfigTest {
     }
 
     @Nested
+    @DisplayName("when creating the DDI-AS RestClient")
+    class DdiAsApiRestClient {
+
+        @Test
+        @DisplayName("should build a RestClient configured with the given host")
+        void should_build_rest_client_with_host() {
+            RestClient restClient = clientApiConfig.ddiAsApiRestClient("http://ddi-as.test");
+
+            assertThat(restClient).isNotNull();
+        }
+
+        @Test
+        @DisplayName("should throw when host is missing")
+        void should_throw_when_host_is_missing() {
+            assertThatThrownBy(() -> clientApiConfig.ddiAsApiRestClient(null))
+                    .isInstanceOf(IllegalStateException.class);
+        }
+    }
+
+    @Nested
     @DisplayName("when creating the Eno RestClient")
     class EnoApiRestClient {
 
@@ -162,6 +191,19 @@ class ClientApiConfigTest {
         void should_throw_when_host_is_missing() {
             assertThatThrownBy(() -> clientApiConfig.enoApiRestClient(null))
                     .isInstanceOf(IllegalStateException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("when creating the default RestClient")
+    class DefaultRestClient {
+
+        @Test
+        @DisplayName("should build a RestClient using the injected builder without a base URL")
+        void should_build_rest_client_without_base_url() {
+            RestClient restClient = clientApiConfig.restClient();
+
+            assertThat(restClient).isSameAs(globalRestClient);
         }
     }
 }

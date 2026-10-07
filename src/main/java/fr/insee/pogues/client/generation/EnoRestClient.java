@@ -7,12 +7,12 @@ import fr.insee.pogues.domain.enums.generation.CollectMode;
 import fr.insee.pogues.domain.enums.generation.GenerationContext;
 import fr.insee.pogues.domain.enums.generation.GenerationFormat;
 import fr.insee.pogues.domain.enums.generation.parameters.GenerationParameters;
-import fr.insee.pogues.exception.PoguesException;
 import fr.insee.pogues.model.EnoContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -104,28 +104,13 @@ public class EnoRestClient implements EnoClient {
     @Override
     public String getPoguesJsonToLunaticJson(String inputAsString, GenerationParameters generationParameters) throws GenerationException {
         log.info("EnoClient [PoguesToLunatic] with custom parameters");
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("in", new ByteArrayResourceWithFileName(
-                POGUES_JSON_FILE_NAME, inputAsString.getBytes(StandardCharsets.UTF_8)));
-        builder.part("params", new ByteArrayResourceWithFileName(
-                PARAMS_FILE_NAME, objectMapper.writeValueAsBytes(generationParameters)));
-        try {
-            byte[] responseBytes = restClient.post()
-                    .uri("questionnaire/pogues-2-lunatic")
-                    .accept(MediaType.APPLICATION_OCTET_STREAM)
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .body(builder.build())
-                    .retrieve()
-                    .body(byte[].class);
-            if(responseBytes == null) return null;
-            return new String(responseBytes, StandardCharsets.UTF_8);
-        } catch (RestClientResponseException e) {
-            log.error(e.getMessage());
-            throw new GenerationException(e.getResponseBodyAsString());
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new GenerationException("Unknown error during generation");
-        }
+
+        MultiValueMap<String, Object> multipartBody = buildMultipartBody(
+                "in", POGUES_JSON_FILE_NAME, inputAsString.getBytes(StandardCharsets.UTF_8));
+        addMultipartFilePart(multipartBody, "params", PARAMS_FILE_NAME,
+                objectMapper.writeValueAsBytes(generationParameters));
+
+        return postMultipart(URI.create("questionnaire/pogues-2-lunatic"), multipartBody);
     }
 
     /** Returns the Eno context from the params map. Default value is the 'DEFAULT' context. */
@@ -153,7 +138,7 @@ public class EnoRestClient implements EnoClient {
     }
 
     private String callEnoApiWithParams(String inputAsString, String fileName, String wsPath, MultiValueMap<String, String> params)
-            throws GenerationException, PoguesException {
+            throws GenerationException {
         URI uri = UriComponentsBuilder
                 .fromPath(wsPath)
                 .queryParams(params)
@@ -161,20 +146,35 @@ public class EnoRestClient implements EnoClient {
 
         log.info("Call Eno API with URI: {}", uri);
 
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
-        builder.part("in", new ByteArrayResourceWithFileName(
-                fileName, inputAsString.getBytes(StandardCharsets.UTF_8)));
+        MultiValueMap<String, Object> multipartBody = buildMultipartBody(
+                "in", fileName, inputAsString.getBytes(StandardCharsets.UTF_8));
 
+        return postMultipart(uri, multipartBody);
+    }
+
+    private MultiValueMap<String, Object> buildMultipartBody(String partName, String fileName, byte[] content) {
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        addMultipartFilePart(body, partName, fileName, content);
+        return body;
+    }
+
+    private void addMultipartFilePart(MultiValueMap<String, Object> body, String partName, String fileName, byte[] content) {
+        ByteArrayResourceWithFileName resource = new ByteArrayResourceWithFileName(fileName, content);
+        HttpHeaders partHeaders = new HttpHeaders();
+        partHeaders.setContentDispositionFormData(partName, fileName);
+        body.add(partName, new HttpEntity<>(resource, partHeaders));
+    }
+
+    private String postMultipart(URI uri, MultiValueMap<String, Object> multipartBody) throws GenerationException {
         try {
-            byte[] responseBytes =  restClient.post()
+            byte[] responseBytes = restClient.post()
                     .uri(uri)
                     .accept(MediaType.APPLICATION_OCTET_STREAM)
                     .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .body(builder.build())
+                    .body(multipartBody)
                     .retrieve()
                     .body(byte[].class);
-            if(responseBytes == null) return null;
-            return new String(responseBytes, StandardCharsets.UTF_8);
+            return responseBytes == null ? null : new String(responseBytes, StandardCharsets.UTF_8);
         } catch (RestClientResponseException e) {
             log.error(e.getMessage());
             throw new GenerationException(e.getResponseBodyAsString());

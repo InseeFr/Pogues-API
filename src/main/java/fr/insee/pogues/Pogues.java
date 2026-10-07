@@ -9,18 +9,22 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.time.ZoneId;
 import java.util.TimeZone;
 
-@SpringBootApplication(scanBasePackages = "fr.insee.pogues")
-@EnableTransactionManagement
-@ConfigurationPropertiesScan
 @Slf4j
+@EnableTransactionManagement
+@EnableConfigurationProperties
+@ConfigurationPropertiesScan
+@EnableScheduling
+@SpringBootApplication(scanBasePackages = "fr.insee.pogues")
 public class Pogues extends SpringBootServletInitializer {
 
 	public static SpringApplicationBuilder configureApplicationBuilder(SpringApplicationBuilder springApplicationBuilder){

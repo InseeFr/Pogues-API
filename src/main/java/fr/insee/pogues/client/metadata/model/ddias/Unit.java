@@ -1,13 +1,4 @@
 package fr.insee.pogues.client.metadata.model.ddias;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
-@AllArgsConstructor
-@Getter
-@Setter
-public class Unit {
-    private String uri;
-    private String label;
+public record Unit(String uri, String label) {
 }

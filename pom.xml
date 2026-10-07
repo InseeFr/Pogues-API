@@ -18,7 +18,7 @@
 	<properties>
 		<!-- Project metadata properties -->
 		<final.asset.name>pogues-bo</final.asset.name>
-		<revision>5.4.2</revision> <!-- Version is managed by git tags -->
+		<revision>5.4.4</revision> <!-- Version is managed by git tags -->
 
 		<!-- Project build properties -->
 		<java.version>25</java.version>
@@ -27,8 +27,8 @@
 
 		<!-- !!! Version properties overridden from Spring Boot !!! -->
 		<tomcat.version>11.0.25</tomcat.version>
-<!--		<jackson-2-bom.version>2.21.4</jackson-2-bom.version>-->
-<!--		<jackson-bom.version>3.1.4</jackson-bom.version>-->
+		<jackson-2-bom.version>2.22.3</jackson-2-bom.version>
+		<jackson-bom.version>3.2.3</jackson-bom.version>
 
 		<!-- Version properties not managed by Spring Boot -->
 		<pogues-model.version>2.1.0</pogues-model.version>
@@ -75,12 +75,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-liquibase</artifactId>
-		</dependency>
-
-		<!-- Web-Client-->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webclient</artifactId>
 		</dependency>
 		<!-- Rest-Client -->
 		<dependency>

@@ -17,7 +17,5 @@ public record ApplicationProperties(
         String name,
         String version,
         @NotEmpty(message = "cors origins must be specified")
-        List<String> corsOrigins,
-        List<String> externalSecureUrls,
-        List<String> externalSecureUrlsWithServiceAccount) {
+        List<String> corsOrigins) {
 }
