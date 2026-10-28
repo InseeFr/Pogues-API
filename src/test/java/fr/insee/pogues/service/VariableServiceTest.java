@@ -13,12 +13,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.JsonNode;
 
 import java.math.BigInteger;
 import java.time.Clock;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static fr.insee.pogues.utils.Utils.loadQuestionnaireFromResources;
 import static fr.insee.pogues.utils.json.JSONFunctions.jsonStringtoJsonNode;
@@ -249,6 +252,30 @@ class VariableServiceTest {
         // Then a 404 exception is thrown
         assertEquals(404, exception.getStatus());
         assertEquals(ErrorCode.QUESTIONNAIRE_NOT_FOUND, exception.getErrorCode());
+    }
+
+    @Test
+    @DisplayName("Should fetch the scopes of a questionnaire's version")
+    void getVersionScopes_success() throws Exception {
+        // Given a questionnaire's version with a main loop and a loop based on it
+        Questionnaire questionnaire = new Questionnaire();
+        questionnaire.setIterations(new Questionnaire.Iterations());
+        DynamicIterationType mainLoop = new DynamicIterationType();
+        mainLoop.setId("L1");
+        mainLoop.setName("BOUCLE");
+        DynamicIterationType basedOnLoop = new DynamicIterationType();
+        basedOnLoop.setId("L2");
+        basedOnLoop.setName("BOUCLE2");
+        basedOnLoop.setIterableReference("L1");
+        questionnaire.getIterations().getIteration().addAll(List.of(mainLoop, basedOnLoop));
+        UUID versionId = UUID.randomUUID();
+        Mockito.when(versionService.getVersionDataQuestionnaireModelByVersionId(versionId)).thenReturn(questionnaire);
+
+        // When we fetch the scopes of the version
+        Map<String, String> res = variableService.getVersionScopes(versionId);
+
+        // Then only the main loop is a scope
+        assertThat(res).containsExactly(Map.entry("L1", "BOUCLE"));
     }
 
 }

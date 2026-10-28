@@ -78,6 +78,19 @@ public class VariableService {
     }
 
     /**
+     * Fetch the scopes of a questionnaire's version and of its references.
+     * The version only stores the main questionnaire: its references are fetched in their current state.
+     * @param versionId ID of the questionnaire's version to fetch the scopes from
+     * @return Scopes of the version, as a map of scope ids to scope names
+     * @throws Exception There was an error when fetching the questionnaire or its references from the DB
+     */
+    public Map<String, String> getVersionScopes(UUID versionId) throws Exception {
+        Questionnaire questionnaire = questionnaireService.getQuestionnaireWithItsReferences(
+                retrieveQuestionnaireByVersionId(versionId));
+        return PoguesModelUtils.getQuestionnaireScopes(questionnaire);
+    }
+
+    /**
      * Update or create a new variable in the questionnaire.
      * It will update the questionnaire's last updated date.
      * @param questionnaireId ID of the questionnaire to update

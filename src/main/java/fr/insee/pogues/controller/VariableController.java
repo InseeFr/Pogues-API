@@ -118,4 +118,21 @@ public class VariableController {
 		return ResponseEntity.status(HttpStatus.OK).body(variableScopeDTOs);
 
 	}
+
+	@Operation(summary = "Get all scope variables of a questionnaire's backup and it's dependencies",
+			responses = { @ApiResponse(content = @Content(mediaType = "application/json")) })
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Success"),
+			@ApiResponse(responseCode = "404", description = "Version not found") })
+	@GetMapping("/questionnaire/{questionnaireId}/version/{versionId}/variables-scopes")
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+	public ResponseEntity<List<VariableScopeDTO>> getQuestionnaireVersionScope(
+			@PathVariable(value = "questionnaireId") String ignoredQuestionnaireId,
+			@PathVariable(value = "versionId") UUID versionId) throws Exception {
+		Map<String, String> scopes = variableService.getVersionScopes(versionId);
+		List<VariableScopeDTO> variableScopeDTOs = scopes.entrySet().stream()
+				.map((entry -> new VariableScopeDTO(entry.getKey(), entry.getValue())))
+				.toList();
+		return ResponseEntity.status(HttpStatus.OK).body(variableScopeDTOs);
+	}
 }

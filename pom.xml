@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.1.1</version>
+		<version>4.1.2</version>
 		<relativePath/>
 	</parent>
 
@@ -18,7 +18,7 @@
 	<properties>
 		<!-- Project metadata properties -->
 		<final.asset.name>pogues-bo</final.asset.name>
-		<revision>5.4.4</revision> <!-- Version is managed by git tags -->
+		<revision>5.6.1</revision> <!-- Version is managed by git tags -->
 
 		<!-- Project build properties -->
 		<java.version>25</java.version>
@@ -26,15 +26,14 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!-- !!! Version properties overridden from Spring Boot !!! -->
-		<tomcat.version>11.0.25</tomcat.version>
 		<jackson-2-bom.version>2.22.3</jackson-2-bom.version>
 		<jackson-bom.version>3.2.3</jackson-bom.version>
 
 		<!-- Version properties not managed by Spring Boot -->
 		<pogues-model.version>2.1.0</pogues-model.version>
-		<fop.version>2.11</fop.version>
-		<springdoc-openapi-ui.version>3.1.1</springdoc-openapi-ui.version>
-		<jacoco.version>0.8.15</jacoco.version>
+		<fop.version>2.12</fop.version>
+		<springdoc-openapi-ui.version>3.2.0</springdoc-openapi-ui.version>
+		<jacoco.version>0.8.16</jacoco.version>
 		<saxon.version>12.10</saxon.version>
 		<postgresql.version>42.7.13</postgresql.version>
 

@@ -10,6 +10,21 @@ import java.util.Optional;
 
 public interface QuestionnaireJpaRepository extends JpaRepository<QuestionnaireEntity, String> {
 
+    /**
+     * Closed projection on the generated columns: the json data is not loaded.
+     * Getter names must match the field names of QuestionnaireEntity.
+     */
+    interface SearchResultProjection {
+        String getId();
+        String getLabel();
+        String getLastUpdatedDate();
+        String getOwner();
+        String getSerieId();
+        String getSerieUri();
+        String getSerieLabel();
+        String getSerieAltLabel();
+    }
+
     @Query("SELECT DISTINCT q.owner FROM QuestionnaireEntity q WHERE q.owner IS NOT NULL")
     List<String> findDistinctOwners();
 

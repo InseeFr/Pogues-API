@@ -237,27 +237,45 @@ public class QuestionnaireRepositoryImpl implements QuestionnaireRepository {
 	private boolean isStampRestricted(String stamp) {
 		return stampRestricted.equals(stamp);
 	}
-	
+
 	private boolean isUserAuthorized(String id, JsonNode questionnaire, QuestionnaireAction action) {
-		boolean isAuthorized=true;
-
-		String nextStamp = questionnaire.get("owner").asString();
-
-		String actualStamp = questionnaireJpaRepository
-				.findOwnerById(id)
-				.orElseThrow(() -> new QuestionnaireNotFoundException(String.format("Questionnaire with id %s does not exist", id)));
-
-		// only user of questionnaire Stamp can update/delete it
-		if (isStampRestricted(actualStamp) && !stampsRestrictionsService.isQuestionnaireOwner(actualStamp)) {
-			isAuthorized = false;
+		if (!questionnaireJpaRepository.existsById(id)) {
+			throw new QuestionnaireNotFoundException(String.format("Questionnaire with id %s does not exist", id));
 		}
-		// Case of changing stamp, user need access to new stamp
-		if(!actualStamp.equals(nextStamp) && isStampRestricted(nextStamp) && !stampsRestrictionsService.isQuestionnaireOwner(nextStamp)) {
-			isAuthorized = false;
-		}
+
+		String actualStamp = questionnaireJpaRepository.findOwnerById(id).orElse(null);
+		String nextStamp = extractOwner(questionnaire);
+
+		boolean isAuthorized = canActOnCurrentStamp(actualStamp) && canMoveToNextStamp(actualStamp, nextStamp);
+
 		log.info("IsUserAuthorized to {} questionnaire (actual stamp: {}, new stamp: {}): {}",
 				action, actualStamp, nextStamp, isAuthorized);
 		return isAuthorized;
+	}
+
+	private String extractOwner(JsonNode questionnaire) {
+		JsonNode owner = questionnaire.get("owner");
+		return (owner == null || owner.isNull()) ? null : owner.asString();
+	}
+
+	/**
+	 * Only a user of the questionnaire's current stamp can act on it.
+	 * A questionnaire without stamp has no restriction on its current owner.
+	 */
+	private boolean canActOnCurrentStamp(String actualStamp) {
+		return !isStampRestricted(actualStamp)
+				|| stampsRestrictionsService.isQuestionnaireOwner(actualStamp);
+	}
+
+	/**
+	 * When the stamp changes (including from "no stamp" to a stamp),
+	 * the user must have access to the new stamp.
+	 */
+	private boolean canMoveToNextStamp(String actualStamp, String nextStamp) {
+		boolean stampChanges = !Objects.equals(actualStamp, nextStamp);
+		return !stampChanges
+				|| !isStampRestricted(nextStamp)
+				|| stampsRestrictionsService.isQuestionnaireOwner(nextStamp);
 	}
 
 }

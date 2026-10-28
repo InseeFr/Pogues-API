@@ -57,22 +57,31 @@ public class Variables {
             );
         }
         if(poguesComponent.getClass().equals(QuestionType.class)){
-            QuestionType question = (QuestionType) poguesComponent;
-            // Retrieve collected variable in Responses
-            question.getResponse().forEach(responseType -> {
-                String collectedVariable = responseType.getCollectedVariableReference();
-                if(collectedVariable != null) variablesIds.add(collectedVariable);
-            });
-            // Retrieve collected variable in ClarificationQuestion
-            if(!question.getClarificationQuestion().isEmpty()){
-                question.getClarificationQuestion().forEach(clarificationQuestion ->
-                        variablesIds.addAll(getNeededCollectedVariablesInQuestionnaire(clarificationQuestion))
-                );
-            }
-            // Retrieve collected variable in ArbitraryResponse
-            if(question.getArbitraryResponse() != null){
-                variablesIds.add(question.getArbitraryResponse().getCollectedVariableReference());
-            }
+            variablesIds.addAll(getQuestionCollectedVariables((QuestionType) poguesComponent));
+        }
+        return variablesIds;
+    }
+
+    /**
+     * Get the ids of the variables collected by a question: in its responses, in its clarification questions
+     * and in its arbitrary response.
+     * @param question Question from which we want the collected variables
+     * @return IDs of the collected variables of the question
+     */
+    public static List<String> getQuestionCollectedVariables(QuestionType question){
+        List<String> variablesIds = new ArrayList<>();
+        // Retrieve collected variable in Responses
+        question.getResponse().forEach(responseType -> {
+            String collectedVariable = responseType.getCollectedVariableReference();
+            if(collectedVariable != null) variablesIds.add(collectedVariable);
+        });
+        // Retrieve collected variable in ClarificationQuestion
+        question.getClarificationQuestion().forEach(clarificationQuestion ->
+                variablesIds.addAll(getQuestionCollectedVariables(clarificationQuestion))
+        );
+        // Retrieve collected variable in ArbitraryResponse
+        if(question.getArbitraryResponse() != null){
+            variablesIds.add(question.getArbitraryResponse().getCollectedVariableReference());
         }
         return variablesIds;
     }

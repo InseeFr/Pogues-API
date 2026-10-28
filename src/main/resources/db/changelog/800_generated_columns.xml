@@ -18,4 +18,32 @@
             <sql dbms="postgresql" endDelimiter=";">ALTER TABLE pogues DROP COLUMN owner;</sql>
         </rollback>
     </changeSet>
+
+    <changeSet author="admin (generated)" id="1793145600000-1">
+        <!-- label: first element of the Label array -->
+        <!-- serie_*: null when DataCollection has no serie (or is a legacy array) -->
+        <sql dbms="postgresql" endDelimiter=";">
+            ALTER TABLE pogues
+                ADD COLUMN label TEXT GENERATED ALWAYS AS (data -> 'Label' ->> 0) STORED,
+                ADD COLUMN last_updated_date TEXT GENERATED ALWAYS AS (data ->> 'lastUpdatedDate') STORED,
+                ADD COLUMN serie_id TEXT GENERATED ALWAYS AS (data -> 'DataCollection' -> 'serie' ->> 'id') STORED,
+                ADD COLUMN serie_uri TEXT GENERATED ALWAYS AS (data -> 'DataCollection' -> 'serie' ->> 'uri') STORED,
+                ADD COLUMN serie_label TEXT GENERATED ALWAYS AS (data -> 'DataCollection' -> 'serie' ->> 'label') STORED,
+                ADD COLUMN serie_alt_label TEXT GENERATED ALWAYS AS (data -> 'DataCollection' -> 'serie' ->> 'altLabel') STORED;
+        </sql>
+        <!-- Create index on serie_id for searching questionnaires by serie_id -->
+        <sql dbms="postgresql" endDelimiter=";">CREATE INDEX idx_pogues_serie_id ON pogues (serie_id);</sql>
+        <rollback>
+            <sql dbms="postgresql" endDelimiter=";">DROP INDEX idx_pogues_serie_id;</sql>
+            <sql dbms="postgresql" endDelimiter=";">
+                ALTER TABLE pogues
+                    DROP COLUMN label,
+                    DROP COLUMN last_updated_date,
+                    DROP COLUMN serie_id,
+                    DROP COLUMN serie_uri,
+                    DROP COLUMN serie_label,
+                    DROP COLUMN serie_alt_label;
+            </sql>
+        </rollback>
+    </changeSet>
 </databaseChangeLog>

@@ -27,4 +27,22 @@ public class QuestionnaireEntity {
 
     @Column(name = "owner", insertable = false, updatable = false)
     private String owner;
+
+    @Column(name = "label", insertable = false, updatable = false)
+    private String label;
+
+    @Column(name = "last_updated_date", insertable = false, updatable = false)
+    private String lastUpdatedDate;
+
+    @Column(name = "serie_id", insertable = false, updatable = false)
+    private String serieId;
+
+    @Column(name = "serie_uri", insertable = false, updatable = false)
+    private String serieUri;
+
+    @Column(name = "serie_label", insertable = false, updatable = false)
+    private String serieLabel;
+
+    @Column(name = "serie_alt_label", insertable = false, updatable = false)
+    private String serieAltLabel;
 }

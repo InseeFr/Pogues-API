@@ -284,4 +284,35 @@ class VariableControllerTest {
                 .andExpect(content().string(expectedJSON));
     }
 
+    @Test
+    @DisplayName("Should get correct scopes DTO for questionnaire's version")
+    void getQuestionnaireVersionScope_should_success() throws Exception {
+        UUID versionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        Map<String, String> mockScopes = new LinkedHashMap<>();
+        mockScopes.put("id1","ID_1");
+        mockScopes.put("id2","ID_3");
+        Mockito.when(variableService.getVersionScopes(versionId)).thenReturn(mockScopes);
+        String expectedJSON = """
+                [{"id":"id1","label":"ID_1"},{"id":"id2","label":"ID_3"}]""";
+
+        // When we fetch the scopes of the questionnaire's version
+        mockMvc.perform(get(String.format("/api/persistence/questionnaire/my-q-id/version/%s/variables-scopes", versionId))
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
+                // Then we receive a 200 and the scopes are returned
+                .andExpect(status().isOk())
+                .andExpect(content().string(expectedJSON));
+    }
+
+    @Test
+    @DisplayName("Should trigger an error when we try to fetch scopes from a questionnaire's backup that does not exist")
+    void getQuestionnaireVersionScope_error_notFound() throws Exception {
+        UUID versionId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
+        Mockito.when(variableService.getVersionScopes(versionId))
+                .thenThrow(new PoguesException(404, "Version not found", ""));
+
+        mockMvc.perform(get(String.format("/api/persistence/questionnaire/my-q-id/version/%s/variables-scopes", versionId))
+                        .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
+                .andExpect(status().isNotFound());
+    }
+
 }
