@@ -1,6 +1,7 @@
 package fr.insee.pogues.persistence.repository.jpa;
 
 import fr.insee.pogues.domain.entity.db.QuestionnaireEntity;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,6 +25,21 @@ public interface QuestionnaireJpaRepository extends JpaRepository<QuestionnaireE
         String getSerieLabel();
         String getSerieAltLabel();
     }
+
+    /**
+     * Search questionnaires by owner and/or serie id. A null parameter is not used as a filter.
+     */
+    @Query("""
+            SELECT q.id AS id, q.label AS label, q.lastUpdatedDate AS lastUpdatedDate, q.owner AS owner,
+                   q.serieId AS serieId, q.serieUri AS serieUri, q.serieLabel AS serieLabel, q.serieAltLabel AS serieAltLabel
+            FROM QuestionnaireEntity q
+            WHERE (:owner IS NULL OR q.owner = :owner)
+              AND (:serieId IS NULL OR q.serieId = :serieId)
+            """)
+    List<SearchResultProjection> searchQuestionnaires(
+            @Param("owner") @Nullable String owner,
+            @Param("serieId") @Nullable String serieId
+    );
 
     @Query("SELECT DISTINCT q.owner FROM QuestionnaireEntity q WHERE q.owner IS NOT NULL")
     List<String> findDistinctOwners();

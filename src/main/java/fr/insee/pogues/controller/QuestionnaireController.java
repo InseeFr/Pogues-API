@@ -7,14 +7,18 @@ import fr.insee.pogues.configuration.properties.ApplicationProperties;
 import fr.insee.pogues.exception.validation.QuestionnaireIdentifierException;
 import fr.insee.pogues.model.Questionnaire;
 import fr.insee.pogues.model.dto.metadata.StampDto;
+import fr.insee.pogues.model.dto.questionnaires.QuestionnaireSearchResultDTO;
 import fr.insee.pogues.persistence.service.IQuestionnaireService;
 import fr.insee.pogues.persistence.service.JSONLunaticService;
 import fr.insee.pogues.persistence.service.PublicEnemyVariableService;
+import fr.insee.pogues.service.QuestionnaireSearchService;
 import fr.insee.pogues.service.validation.ModelValidationService;
 import fr.insee.pogues.utils.PoguesDeserializer;
 import fr.insee.pogues.service.SuggesterVisuService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,7 +42,7 @@ import static fr.insee.pogues.service.validation.steps.IdentifierCheck.QUESTIONN
  * @author I6VWID
  */
 @RestController
-@RequestMapping("/api/persistence")
+@RequestMapping("/api")
 @Tag(name = "02. Questionnaire Controller")
 @RequiredArgsConstructor
 @Slf4j
@@ -51,6 +55,7 @@ public class QuestionnaireController {
 	private final SuggesterVisuService suggesterVisuService;
 	private final UserProvider userProvider;
 	private final ModelValidationService modelValidationService;
+	private final QuestionnaireSearchService questionnaireSearchService;
 
 	/**
 	 * @param id: the id of questionnaire
@@ -60,7 +65,7 @@ public class QuestionnaireController {
 	 * @return the json representation of questionnaire (and potentially its references according to references param)
 	 * @throws Exception
 	 */
-	@GetMapping("questionnaire/{id}")
+	@GetMapping("persistence/questionnaire/{id}")
     @Operation(
 			operationId  = "getQuestionnaires",
 	        summary = "Get questionnaire",
@@ -81,7 +86,7 @@ public class QuestionnaireController {
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 	
-    @GetMapping("questionnaire/json-lunatic/{id}")
+    @GetMapping("persistence/questionnaire/json-lunatic/{id}")
     @Operation(
 			operationId = "getJsonLunatic",
 	        summary = "Get questionnaire",
@@ -100,7 +105,7 @@ public class QuestionnaireController {
 
 	}
 
-    @GetMapping("questionnaires/search")
+    @GetMapping("persistence/questionnaires/search")
     @Operation(
     		operationId = "searchQuestionnaires",
             summary = "Search questionnaires",
@@ -121,7 +126,7 @@ public class QuestionnaireController {
 		return ResponseEntity.status(HttpStatus.OK).body(questionnaires);
     }
 
-	@GetMapping("questionnaires/search/meta")
+	@GetMapping("persistence/questionnaires/search/meta")
 	@Operation(
 			operationId = "searchQuestionnairesMetadata",
 	        summary = "Get questionnaires' metadata",
@@ -142,8 +147,25 @@ public class QuestionnaireController {
 		return ResponseEntity.status(HttpStatus.OK).body(questionnairesMetadata);
 
 	}
-	
-	@GetMapping("questionnaires/stamps")
+
+	@GetMapping("questionnaires")
+	@Operation(
+			operationId = "searchQuestionnairesByOwnerAndSerie",
+			summary = "Search questionnaires",
+			description = "Search questionnaires by owner (stamp) and/or serie id, used by front-end"
+	)
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Success", content = { @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = QuestionnaireSearchResultDTO.class))) })
+	})
+	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+	public ResponseEntity<List<QuestionnaireSearchResultDTO>> searchQuestionnairesByOwnerAndSerie(
+			@RequestParam(value = "owner", required = false) String owner,
+			@RequestParam(value = "serieId", required = false) String serieId
+	) {
+		return ResponseEntity.status(HttpStatus.OK).body(questionnaireSearchService.searchQuestionnaires(owner, serieId));
+	}
+
+	@GetMapping("persistence/questionnaires/stamps")
 	@Operation(
 			operationId = "searchQuestionnairesStamps",
 	        summary = "Get stamps in database",
@@ -160,7 +182,7 @@ public class QuestionnaireController {
 	}
 	
 
-	@DeleteMapping("questionnaire/{id}")
+	@DeleteMapping("persistence/questionnaire/{id}")
 	@Operation(
 			operationId = "deleteQuestionnaire",
 	        summary = "Delete questionnaire",
@@ -180,7 +202,7 @@ public class QuestionnaireController {
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
-	@GetMapping("questionnaire/{id}/vars")
+	@GetMapping("persistence/questionnaire/{id}/vars")
 	@Operation(
 			operationId  = "getQuestionnaireVars",
 			summary = "Get the variables of a questionnaire",
@@ -200,7 +222,7 @@ public class QuestionnaireController {
 		return ResponseEntity.status(HttpStatus.OK).body(result);
 	}
 	
-	@DeleteMapping("questionnaire/json-lunatic/{id}")
+	@DeleteMapping("persistence/questionnaire/json-lunatic/{id}")
 	@Operation(
 			operationId = "deleteJsonLunatic",
 	        summary = "Delete Json Lunatic of a questionnaire",
@@ -219,7 +241,7 @@ public class QuestionnaireController {
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
-	@PutMapping("questionnaire/{id}")
+	@PutMapping("persistence/questionnaire/{id}")
 	@Operation(
 			operationId = "updateQuestionnaire",
 	        summary = "Update questionnaire",
@@ -241,7 +263,7 @@ public class QuestionnaireController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 	
-	@PutMapping("questionnaire/json-lunatic/{id}")
+	@PutMapping("persistence/questionnaire/json-lunatic/{id}")
 	@Operation(
 			operationId = "updateJsonLunatic",
 	        summary = "Update Json Lunatic",
@@ -261,7 +283,7 @@ public class QuestionnaireController {
 		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 
-	@PostMapping("questionnaires")
+	@PostMapping("persistence/questionnaires")
 	@Operation(
 			operationId = "createQuestionnaire",
 	        summary = "Create Questionnaire",
@@ -288,7 +310,7 @@ public class QuestionnaireController {
         return ResponseEntity.status(HttpStatus.CREATED).header("Location", questionnaireUri).build();
 	}
 	
-	@PostMapping("questionnaires/json-lunatic")
+	@PostMapping("persistence/questionnaires/json-lunatic")
 	@Operation(
 			operationId = "createJsonLunatic",
 	        summary = "Create Json Lunatic of questionnaire",
@@ -316,7 +338,7 @@ public class QuestionnaireController {
 	}
 
 	@Deprecated
-	@GetMapping("questionnaire/{id}/nomenclatures")
+	@GetMapping("persistence/questionnaire/{id}/nomenclatures")
 	@Operation(
 			operationId  = "getNomenclaturesUrls",
 			summary = "Get object representation of id:url for suggester of a questionnaire",
