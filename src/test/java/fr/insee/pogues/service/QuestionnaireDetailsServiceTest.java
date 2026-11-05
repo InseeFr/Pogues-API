@@ -1,6 +1,6 @@
 package fr.insee.pogues.service;
 
-import fr.insee.pogues.exception.validation.ModelValidationException;
+import fr.insee.pogues.exception.details.QuestionnaireDetailsInvalidException;
 import fr.insee.pogues.model.*;
 import fr.insee.pogues.model.dto.details.QuestionnaireDetailsDto;
 import fr.insee.pogues.persistence.service.IQuestionnaireService;
@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -63,8 +64,6 @@ class QuestionnaireDetailsServiceTest {
         assertEquals("id", dto.id());
         assertEquals("Questionnaire", dto.name());
         assertEquals("My label", dto.label());
-        assertEquals(FlowLogicEnum.FILTER, dto.flowLogic());
-        assertEquals(FormulasLanguageEnum.VTL, dto.formulasLanguage());
         assertEquals(questionnaire.getDataCollection(), dto.dataCollection());
         assertEquals(List.of(SurveyModeEnum.CAPI, SurveyModeEnum.CAWI), dto.targetMode());
         assertEquals("fr.insee", dto.agency());
@@ -74,10 +73,12 @@ class QuestionnaireDetailsServiceTest {
     }
 
     @Test
-    @DisplayName("Should update questionnaire details")
+    @DisplayName("Should update questionnaire details without changing flow logic and formulas language")
     void updateQuestionnaireDetailsById_success() throws Exception {
 
         Questionnaire questionnaire = buildQuestionnaire();
+        questionnaire.setFlowLogic(FlowLogicEnum.REDIRECTION);
+        questionnaire.setFormulasLanguage(FormulasLanguageEnum.XPATH);
 
         when(questionnaireService.getQuestionnaireModelByID("id"))
                 .thenReturn(questionnaire);
@@ -95,8 +96,6 @@ class QuestionnaireDetailsServiceTest {
                 "id",
                 "New name",
                 "New label",
-                FlowLogicEnum.REDIRECTION,
-                FormulasLanguageEnum.XPATH,
                 newDataCollection,
                 List.of(SurveyModeEnum.PAPI),
                 "new.agency",
@@ -121,12 +120,10 @@ class QuestionnaireDetailsServiceTest {
     }
 
     @Test
-    @DisplayName("Should not update questionnaire details when invalid")
+    @DisplayName("Should not update questionnaire details when serie is invalid")
     void updateQuestionnaireDetailsById_failed() throws Exception {
 
         when(questionnaireDataCollectionCheck.validateDataCollection(any()))
-                .thenReturn(ValidationResult.invalid("DDI Agency \"new.agency\" doesn't exist"));
-        when(questionnaireDDIAgencyCheck.validateAgency(any()))
                 .thenReturn(ValidationResult.invalid("Serie of id:\"s2\" doesn't exist in metadata repository"));
 
         DataCollection newDataCollection = new DataCollection();
@@ -139,22 +136,95 @@ class QuestionnaireDetailsServiceTest {
                 "id",
                 "New name",
                 "New label",
-                FlowLogicEnum.REDIRECTION,
-                FormulasLanguageEnum.XPATH,
                 newDataCollection,
                 List.of(SurveyModeEnum.PAPI),
                 "new.agency",
                 "new.owner"
         );
 
-        ModelValidationException ex = assertThrows(ModelValidationException.class,
+        QuestionnaireDetailsInvalidException ex = assertThrows(QuestionnaireDetailsInvalidException.class,
                 () -> questionnaireDetailsService.updateQuestionnaireDetailsById("id", dto));
 
-        assertEquals("Questionnaire details invalid", ex.getMessage());
-        assertThat(ex.getDetails()).hasSize(2);
-        assertThat(ex.getDetails()).contains("DDI Agency \"new.agency\" doesn't exist");
-        assertThat(ex.getDetails()).contains("Serie of id:\"s2\" doesn't exist in metadata repository");
+        assertEquals("Serie of id:\"s2\" doesn't exist in metadata repository", ex.getMessage());
+        verifyNoInteractions(questionnaireDDIAgencyCheck);
 
+        verifyNoInteractions(questionnaireService);
+    }
+
+    @Test
+    @DisplayName("Should create questionnaire from details")
+    void createQuestionnaireFromDetails_success() throws Exception {
+
+        when(questionnaireDataCollectionCheck.validateDataCollection(any())).thenReturn(ValidationResult.valid());
+        when(questionnaireDDIAgencyCheck.validateAgency(any())).thenReturn(ValidationResult.valid());
+        AtomicReference<Questionnaire> saved = new AtomicReference<>();
+        doAnswer(invocation -> {
+            saved.set(invocation.getArgument(0));
+            return null;
+        }).when(questionnaireService).createQuestionnaire(any(Questionnaire.class));
+        when(questionnaireService.getQuestionnaireModelByID("m5noru0h"))
+                .thenAnswer(invocation -> saved.get());
+
+        DataCollection dataCollection = new DataCollection();
+        Serie serie = new Serie();
+        serie.setId("s1");
+        dataCollection.setSerie(serie);
+
+        QuestionnaireDetailsDto dto = new QuestionnaireDetailsDto(
+                "m5noru0h",
+                "enqlog2026",
+                "Enquête logement 2026",
+                dataCollection,
+                List.of(SurveyModeEnum.CAWI, SurveyModeEnum.CAPI),
+                "fr.insee",
+                "DR59-SNDI59"
+        );
+
+        QuestionnaireDetailsDto created = questionnaireDetailsService.createQuestionnaireFromDetails(dto);
+
+        Questionnaire questionnaire = saved.get();
+        assertEquals("m5noru0h", questionnaire.getId());
+        assertEquals("enqlog2026", questionnaire.getName());
+        assertEquals(List.of("Enquête logement 2026"), questionnaire.getLabel());
+        assertEquals(List.of(SurveyModeEnum.CAWI, SurveyModeEnum.CAPI), questionnaire.getTargetMode());
+        assertEquals(FlowLogicEnum.FILTER, questionnaire.getFlowLogic());
+        assertEquals(FormulasLanguageEnum.VTL, questionnaire.getFormulasLanguage());
+        assertSame(dataCollection, questionnaire.getDataCollection());
+        assertEquals("fr.insee", questionnaire.getAgency());
+        assertEquals("DR59-SNDI59", questionnaire.getOwner());
+        assertEquals(GenericNameEnum.QUESTIONNAIRE, questionnaire.getGenericName());
+        assertThat(questionnaire.getCodeLists().getCodeList()).isEmpty();
+        assertThat(questionnaire.getVariables().getVariable()).isEmpty();
+
+        assertEquals(1, questionnaire.getChild().size());
+        SequenceType endSequence = (SequenceType) questionnaire.getChild().getFirst();
+        assertEquals("idendquest", endSequence.getId());
+        assertEquals("QUESTIONNAIRE_END", endSequence.getName());
+        assertEquals(List.of("QUESTIONNAIRE_END"), endSequence.getLabel());
+        assertEquals(1, endSequence.getDepth().intValue());
+        assertEquals(GenericNameEnum.MODULE, endSequence.getGenericName());
+        assertEquals(List.of(SurveyModeEnum.CAWI, SurveyModeEnum.CAPI), endSequence.getTargetMode());
+
+        assertEquals("m5noru0h", created.id());
+    }
+
+    @Test
+    @DisplayName("Should not create questionnaire when agency is invalid")
+    void createQuestionnaireFromDetails_failed() {
+
+        when(questionnaireDataCollectionCheck.validateDataCollection(any())).thenReturn(ValidationResult.valid());
+        when(questionnaireDDIAgencyCheck.validateAgency(any()))
+                .thenReturn(ValidationResult.invalid("DDI Agency \"new.agency\" doesn't exist"));
+
+        QuestionnaireDetailsDto dto = new QuestionnaireDetailsDto(
+                "id", "NAME", "label", null,
+                List.of(SurveyModeEnum.CAWI), "new.agency", "owner"
+        );
+
+        QuestionnaireDetailsInvalidException ex = assertThrows(QuestionnaireDetailsInvalidException.class,
+                () -> questionnaireDetailsService.createQuestionnaireFromDetails(dto));
+
+        assertEquals("DDI Agency \"new.agency\" doesn't exist", ex.getMessage());
         verifyNoInteractions(questionnaireService);
     }
 
@@ -175,8 +245,6 @@ class QuestionnaireDetailsServiceTest {
         assertEquals("id", dto.id());
         assertEquals("Questionnaire", dto.name());
         assertEquals("My label", dto.label());
-        assertEquals(FlowLogicEnum.FILTER, dto.flowLogic());
-        assertEquals(FormulasLanguageEnum.VTL, dto.formulasLanguage());
         assertEquals("s1", dto.dataCollection().getSerie().getId());
         assertThat(dto.targetMode()).contains(SurveyModeEnum.CAPI, SurveyModeEnum.CAWI);
         assertEquals("fr.insee", dto.agency());

@@ -55,7 +55,7 @@ class CodesListServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/complexTableWithCodesLists.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         // When we get the questionnaire's codes lists
         List<ExtendedCodesListDTO> codesLists = codesListService.getQuestionnaireCodesLists("m7c5siu3");
@@ -73,7 +73,7 @@ class CodesListServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/complexTableWithCodesLists.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         // When we get one specific codes list
         ExtendedCodesListDTO codesList = codesListService.getQuestionnaireCodesList("m7c5siu3", "m7d794ks");
@@ -90,7 +90,7 @@ class CodesListServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/complexTableWithCodesLists.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         // When we get a codes list that doesn't exist
         CodesListException exception = assertThrows(
@@ -108,7 +108,7 @@ class CodesListServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/withoutCodesList.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         assertEquals(0, codesListService.getQuestionnaireCodesLists("lw6534qt").size());
 
@@ -135,7 +135,7 @@ class CodesListServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/multiple.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         List<ExtendedCodesListDTO> initialCodesLists = codesListService.getQuestionnaireCodesLists("m7c5siu3");
         assertEquals(4, initialCodesLists.size());
@@ -175,7 +175,7 @@ class CodesListServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/table.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         String questionnaireId = "m7c5siu3";
         String codeListId = "m7c68dlm";
@@ -219,7 +219,7 @@ class CodesListServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/complexTableWithCodesLists.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         // When we update the code list
         codesListService.upsertQuestionnaireCodesList("m7c5siu3", "m7c68dlm",
@@ -248,7 +248,7 @@ class CodesListServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/complexTableWithCodesLists.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         QuestionType question = findQuestionWithId(mockQuestionnaire, "m8hd7kt3");
         assertThat(question.getClarificationQuestion()).hasSize(1);
@@ -279,7 +279,7 @@ class CodesListServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/complexTableWithCodesLists.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         String questionnaireId = "m7c5siu3";
         String questionIdWithCodeListFilters = "m8hd7kt3";
@@ -311,7 +311,7 @@ class CodesListServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/complexTableWithCodesLists.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         String questionnaireId = "m7c5siu3";
         String questionIdWithCodeListFilters = "m8hd7kt3";
@@ -344,7 +344,7 @@ class CodesListServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/complexTableWithCodesLists.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         String questionnaireId = "m7c5siu3";
         String questionIdWithCodeListFilters = "m8hd7kt3";
@@ -370,7 +370,7 @@ class CodesListServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/complexTableWithCodesLists.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         String questionnaireId = "m7c5siu3";
         String externalVariableID = "m8rd4mu4";
@@ -403,7 +403,7 @@ class CodesListServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/withCodesLists.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         String questionnaireId = "m7c5siu3";
         String codeListId = "m7c68dlm";
@@ -428,7 +428,7 @@ class CodesListServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/loopRoundabout.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         String questionnaireId = "m7d5k0hy";
         String codeListId = "m7d5nan9";

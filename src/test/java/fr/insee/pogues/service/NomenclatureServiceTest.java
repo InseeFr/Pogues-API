@@ -61,7 +61,7 @@ class NomenclatureServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/withAllNomenclatures.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         // When we get the questionnaire's nomenclatures
         List<ExtendedNomenclatureDTO> nomenclatures = nomenclatureService.getQuestionnaireNomenclatures("mawgv66f");

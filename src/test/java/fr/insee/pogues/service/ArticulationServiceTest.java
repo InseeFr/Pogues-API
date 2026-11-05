@@ -48,7 +48,7 @@ class ArticulationServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/articulation.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
         Articulation expected = new Articulation();
         Item item = new Item();
         item.setLabel("my articulation label");
@@ -70,7 +70,7 @@ class ArticulationServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/loopRoundabout.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         // When we get the questionnaire's articulation
         Articulation res = articulationService.getQuestionnaireArticulation("m7d5k0hy");
@@ -101,7 +101,7 @@ class ArticulationServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/loopRoundaboutXPath.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         // When we get the questionnaire's articulation
         PoguesException exception = assertThrows(
@@ -120,7 +120,7 @@ class ArticulationServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("simple-questionnaire.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         // When we get the questionnaire's articulation
         PoguesException exception = assertThrows(
@@ -139,7 +139,7 @@ class ArticulationServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/loopRoundabout.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         // When we get the questionnaire's variables available for the articulation
         List<VariableType> res = articulationService.getQuestionnaireArticulationVariables("m7d5k0hy");
@@ -155,7 +155,7 @@ class ArticulationServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/articulation.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
         Articulation expected = new Articulation();
         Item item = new Item();
         item.setLabel("my articulation label");
@@ -185,7 +185,7 @@ class ArticulationServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/loopRoundabout.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
         assertNull(articulationService.getQuestionnaireArticulation("m7d5k0hy"));
 
         // When we update the questionnaire's articulation
@@ -209,7 +209,7 @@ class ArticulationServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/articulation.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
         assertNotNull(articulationService.getQuestionnaireArticulation("articulation-id"));
 
         // When we delete the articulation

@@ -3,7 +3,6 @@ package fr.insee.pogues.controller;
 
 import fr.insee.pogues.configuration.auth.AuthorityPrivileges;
 import fr.insee.pogues.client.metadata.model.ddias.Unit;
-import fr.insee.pogues.model.dto.details.QuestionnaireDetailsDto;
 import fr.insee.pogues.model.dto.metadata.AgencyDto;
 import fr.insee.pogues.model.dto.metadata.SerieDto;
 import fr.insee.pogues.service.metadata.MetadataService;

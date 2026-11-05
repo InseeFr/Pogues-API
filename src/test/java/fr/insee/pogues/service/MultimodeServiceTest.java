@@ -74,7 +74,7 @@ class MultimodeServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/multimode.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         // When we get the questionnaire's multimode
         Multimode res = multimodeService.getQuestionnaireMultimode("multimode-id");
@@ -90,7 +90,7 @@ class MultimodeServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/loopRoundabout.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         // When we get the questionnaire's multimode
         Multimode res = multimodeService.getQuestionnaireMultimode("m7d5k0hy");
@@ -121,7 +121,7 @@ class MultimodeServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/loopRoundaboutXPath.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         // When we get the questionnaire's multimode
         PoguesException exception = assertThrows(
@@ -140,7 +140,7 @@ class MultimodeServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/multimode.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
         assertThat(multimodeService.getQuestionnaireMultimode("multimode-id")).usingRecursiveComparison().isEqualTo(qMultimode);
 
         // When we update the questionnaire's multimode
@@ -167,7 +167,7 @@ class MultimodeServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/loopRoundabout.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
         assertNull(multimodeService.getQuestionnaireMultimode("m7d5k0hy"));
 
         // When we update the questionnaire's multimode
@@ -194,7 +194,7 @@ class MultimodeServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/multimode.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
         assertNotNull(multimodeService.getQuestionnaireMultimode("multimode-id"));
 
         // When we delete the multimode

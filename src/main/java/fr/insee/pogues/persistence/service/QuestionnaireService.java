@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -154,11 +155,30 @@ public class QuestionnaireService implements IQuestionnaireService{
     }
 
     /**
-     * Save the JSON representation of a questionnaire
+     * Save the JSON representation of a new questionnaire, using user stamp as owner.
      * @param questionnaire JSON representation of a questionnaire
      * @throws Exception
      */
-    public void createQuestionnaire(JsonNode questionnaire) throws Exception {
+    public void createQuestionnaireWithUserStamp(JsonNode questionnaire) throws Exception {
+        // Ensure that questionnaire is created at stamp user
+        String userStamp = stampsRestrictionsService.getUser().getStamp();
+        ((ObjectNode) questionnaire).put("owner", userStamp);
+        persistNewQuestionnaire(questionnaire);
+    }
+
+    /**
+     * Save a new questionnaire.
+     * @param questionnaire Questionnaire object
+     * @throws Exception
+     */
+    @Override
+    public void createQuestionnaire(Questionnaire questionnaire) throws Exception {
+        questionnaire.setLastUpdatedDate(timeService.getIsoDateFromInstantNow());
+        JsonNode questionnaireJsonNode = jsonStringtoJsonNode(PoguesSerializer.questionnaireJavaToString(questionnaire));
+        persistNewQuestionnaire(questionnaireJsonNode);
+    }
+
+    private void persistNewQuestionnaire(JsonNode questionnaire) throws Exception {
         try {
             String poguesId = questionnaire.get("id").asString();
             this.questionnaireRepository.createQuestionnaire(questionnaire);

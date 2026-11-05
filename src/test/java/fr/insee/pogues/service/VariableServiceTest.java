@@ -51,7 +51,7 @@ class VariableServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("simple-questionnaire.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
         VariableType expected = new CollectedVariableType();
         expected.setId("lmyo22nw");
         expected.setName("Q1");
@@ -72,7 +72,7 @@ class VariableServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/withScope.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         String questionnaireId = "ma0nzzmj";
         String variableId = "mdy51s3x";
@@ -102,7 +102,7 @@ class VariableServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("service/withScopeFromQuestion.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         String questionnaireId = "mig28dzs";
         String variableId = "mig1qa6h";
@@ -147,7 +147,7 @@ class VariableServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("simple-questionnaire.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         assertEquals(1, variableService.getQuestionnaireVariables("lmyoceix").size());
 
@@ -168,7 +168,7 @@ class VariableServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("simple-questionnaire.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         assertEquals(1, variableService.getQuestionnaireVariables("lmyoceix").size());
 
@@ -206,7 +206,7 @@ class VariableServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("simple-questionnaire.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         assertEquals(1, variableService.getQuestionnaireVariables("lmyoceix").size());
 
@@ -224,7 +224,7 @@ class VariableServiceTest {
         Questionnaire mockQuestionnaire = loadQuestionnaireFromResources("simple-questionnaire.json");
         String mockQuestionnaireString = PoguesSerializer.questionnaireJavaToString(mockQuestionnaire);
         JsonNode mockQuestionnaireJSON = jsonStringtoJsonNode(mockQuestionnaireString);
-        questionnaireService.createQuestionnaire(mockQuestionnaireJSON);
+        questionnaireService.createQuestionnaireWithUserStamp(mockQuestionnaireJSON);
 
         assertEquals(1, variableService.getQuestionnaireVariables("lmyoceix").size());
 

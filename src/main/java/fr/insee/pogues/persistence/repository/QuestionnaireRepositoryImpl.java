@@ -15,7 +15,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.node.ObjectNode;
 
 import java.sql.SQLException;
 import java.util.Collections;
@@ -179,10 +178,12 @@ public class QuestionnaireRepositoryImpl implements QuestionnaireRepository {
 			throw new NonUniqueResultException("Entity already exists");
 		}
 
-		// Ensure that questionnaire is created at stamp user
-		String userStamp = stampsRestrictionsService.getUser().getStamp();
-		ObjectNode questionnaireNode = (ObjectNode) questionnaire;
-		questionnaireNode.put("owner", userStamp);
+		//Check rights
+		String owner = extractOwner(questionnaire);
+		if (!canMoveToNextStamp(null, owner)) {
+			log.info("User not authorized to create questionnaire {} with stamp {}", id, owner);
+			throw new PoguesException(403, FORBIDDEN, "Only a member of the stamp can create a questionnaire on it");
+		}
 
 		PGobject q = new PGobject();
 		q.setType("json");

@@ -30,7 +30,9 @@ public interface IQuestionnaireService {
 
     void deleteQuestionnaireByID(String id) throws Exception;
 
-    void createQuestionnaire(JsonNode questionnaire) throws Exception;
+    void createQuestionnaireWithUserStamp(JsonNode questionnaire) throws Exception;
+
+    void createQuestionnaire(Questionnaire questionnaire) throws Exception;
 
     void updateQuestionnaire(String id, JsonNode questionnaire) throws Exception;
 

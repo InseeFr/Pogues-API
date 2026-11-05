@@ -301,7 +301,7 @@ public class QuestionnaireController {
 		Questionnaire questionnaire = PoguesDeserializer.questionnaireToJavaObject(jsonContent);
 		String id = questionnaire.getId();
         modelValidationService.validate(questionnaire, id);
-        questionnaireService.createQuestionnaire(jsonContent);
+        questionnaireService.createQuestionnaireWithUserStamp(jsonContent);
         String questionnaireUri = String.format("%s://%s/api/persistence/questionnaire/%s",
                 applicationProperties.scheme(),
                 applicationProperties.host(),

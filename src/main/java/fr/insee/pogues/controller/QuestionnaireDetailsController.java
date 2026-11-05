@@ -2,13 +2,16 @@ package fr.insee.pogues.controller;
 
 
 import fr.insee.pogues.configuration.auth.AuthorityPrivileges;
+import fr.insee.pogues.configuration.properties.ApplicationProperties;
 import fr.insee.pogues.model.dto.details.QuestionnaireDetailsDto;
 import fr.insee.pogues.service.QuestionnaireDetailsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,6 +29,7 @@ import java.util.UUID;
 public class QuestionnaireDetailsController {
 
     private final QuestionnaireDetailsService questionnaireDetailsService;
+    private final ApplicationProperties applicationProperties;
 
 
     @GetMapping("/questionnaire/{poguesId}/details")
@@ -50,13 +54,33 @@ public class QuestionnaireDetailsController {
         return ResponseEntity.status(HttpStatus.OK).body(questionnaireDetails);
     }
 
+    @PostMapping("/questionnaires/details")
+    @Operation(operationId = "createQuestionnaireFromDetails", summary = "Create a questionnaire from its details",
+            description = "Creates a new empty `Questionnaire` from its details only.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Created",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = QuestionnaireDetailsDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid"),
+            @ApiResponse(responseCode = "409", description = "Entity already exists"),
+    })
+    @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
+    public ResponseEntity<QuestionnaireDetailsDto> createQuestionnaireFromDetails(
+            @Valid @RequestBody QuestionnaireDetailsDto questionnaireDetailsDto) throws Exception {
+        QuestionnaireDetailsDto createdQuestionnaire = questionnaireDetailsService.createQuestionnaireFromDetails(questionnaireDetailsDto);
+        String questionnaireUri = String.format("%s://%s/api/persistence/questionnaire/%s",
+                applicationProperties.scheme(),
+                applicationProperties.host(),
+                createdQuestionnaire.id());
+        log.info("New questionnaire created from details, uri: {}", questionnaireUri);
+        return ResponseEntity.status(HttpStatus.CREATED).header("Location", questionnaireUri).body(createdQuestionnaire);
+    }
 
     @PutMapping("/questionnaire/{poguesId}/details")
     @Operation(operationId = "updateQuestionnaireDetails", summary = "Update details of a questionnaire", description = "This will update all details of questionnaire")
     @PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
     public void updateQuestionnaireDetails(
             @PathVariable(value = "poguesId") String poguesId,
-            @RequestBody QuestionnaireDetailsDto questionnaireDetailsDto) throws Exception {
+            @Valid @RequestBody QuestionnaireDetailsDto questionnaireDetailsDto) throws Exception {
             questionnaireDetailsService.updateQuestionnaireDetailsById(poguesId, questionnaireDetailsDto);
     }
 

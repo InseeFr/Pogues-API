@@ -77,7 +77,16 @@ public class QuestionnaireServiceStub implements IQuestionnaireService {
     }
 
     @Override
-    public void createQuestionnaire(JsonNode questionnaire) throws PoguesException {
+    public void createQuestionnaireWithUserStamp(JsonNode questionnaire) throws PoguesException {
+        saveNewQuestionnaire(questionnaire);
+    }
+
+    @Override
+    public void createQuestionnaire(Questionnaire questionnaire) throws PoguesException, PoguesSerializationException {
+        saveNewQuestionnaire(jsonStringtoJsonNode(PoguesSerializer.questionnaireJavaToString(questionnaire)));
+    }
+
+    private void saveNewQuestionnaire(JsonNode questionnaire) throws PoguesException {
         String id = questionnaire.get("id").asText();
         if (null != questionnaires.get(id)) {
             throw new PoguesException(409, "Conflict", "");

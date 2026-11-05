@@ -1,8 +1,8 @@
 package fr.insee.pogues.service;
 
 
-import fr.insee.pogues.exception.validation.ModelValidationException;
-import fr.insee.pogues.model.Questionnaire;
+import fr.insee.pogues.exception.details.QuestionnaireDetailsInvalidException;
+import fr.insee.pogues.model.*;
 import fr.insee.pogues.model.dto.details.QuestionnaireDetailsDto;
 import fr.insee.pogues.persistence.service.IQuestionnaireService;
 import fr.insee.pogues.persistence.service.VersionService;
@@ -13,9 +13,9 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
+
+import static fr.insee.pogues.utils.model.QuestionnaireInit.initQuestionnaire;
 
 @Service
 @Slf4j
@@ -33,13 +33,32 @@ public class QuestionnaireDetailsService {
                 questionnaire.getId(),
                 questionnaire.getName(),
                 questionnaire.getLabel().getFirst(),
-                questionnaire.getFlowLogic(),
-                questionnaire.getFormulasLanguage(),
                 questionnaire.getDataCollection(),
                 questionnaire.getTargetMode(),
                 questionnaire.getAgency(),
                 questionnaire.getOwner()
         );
+    }
+
+    /**
+     * Create a new (empty) questionnaire from its details.
+     * @param questionnaireDetailsDto details of the questionnaire to create
+     * @return details of the created questionnaire
+     */
+    public QuestionnaireDetailsDto createQuestionnaireFromDetails(QuestionnaireDetailsDto questionnaireDetailsDto) throws Exception {
+        validateDetails(questionnaireDetailsDto);
+
+        String poguesId = questionnaireDetailsDto.id();
+        Questionnaire questionnaire = initQuestionnaire(questionnaireDetailsDto.targetMode());
+        questionnaire.setId(poguesId);
+        questionnaire.setName(questionnaireDetailsDto.name());
+        questionnaire.getLabel().add(questionnaireDetailsDto.label());
+        questionnaire.setOwner(questionnaireDetailsDto.owner());
+        questionnaire.setAgency(questionnaireDetailsDto.agency());
+        questionnaire.setDataCollection(questionnaireDetailsDto.dataCollection());
+
+        questionnaireService.createQuestionnaire(questionnaire);
+        return getQuestionnaireDetailsById(poguesId);
     }
 
     public void updateQuestionnaireDetailsById(String poguesId, QuestionnaireDetailsDto questionnaireDetailsDto) throws Exception {
@@ -51,8 +70,6 @@ public class QuestionnaireDetailsService {
         questionnaire.getLabel().clear();
         questionnaire.getLabel().add(questionnaireDetailsDto.label());
 
-        questionnaire.setFlowLogic(questionnaireDetailsDto.flowLogic());
-        questionnaire.setFormulasLanguage(questionnaireDetailsDto.formulasLanguage());
         questionnaire.setDataCollection(questionnaireDetailsDto.dataCollection());
 
         questionnaire.getTargetMode().clear();
@@ -69,8 +86,6 @@ public class QuestionnaireDetailsService {
                 questionnaire.getId(),
                 questionnaire.getName(),
                 questionnaire.getLabel().getFirst(),
-                questionnaire.getFlowLogic(),
-                questionnaire.getFormulasLanguage(),
                 questionnaire.getDataCollection(),
                 questionnaire.getTargetMode(),
                 questionnaire.getAgency(),
@@ -78,19 +93,30 @@ public class QuestionnaireDetailsService {
         );
     }
 
-    private void validateDetails(QuestionnaireDetailsDto questionnaireDetailsDto){
+    /**
+     * Check the details against the metadata repository (serie and DDI agency).
+     * Format rules are checked on the DTO by Bean Validation.
+     * @param questionnaireDetailsDto Details to check
+     * @throws QuestionnaireDetailsInvalidException The details are not valid
+     */
+    private void validateDetails(QuestionnaireDetailsDto questionnaireDetailsDto) {
+        validateDataCollection(questionnaireDetailsDto);
+        validateAgency(questionnaireDetailsDto);
+    }
 
-        List<String> errorMessages = new ArrayList<>();
+    /** Check that the serie of the questionnaire, if provided, exists in the metadata repository. */
+    private void validateDataCollection(QuestionnaireDetailsDto questionnaireDetailsDto) {
+        ValidationResult result = questionnaireDataCollectionCheck.validateDataCollection(questionnaireDetailsDto.dataCollection());
+        if (!result.isValid()) {
+            throw new QuestionnaireDetailsInvalidException(result.errorMessage());
+        }
+    }
 
-        ValidationResult dataCollectionCheck =  questionnaireDataCollectionCheck.validateDataCollection(questionnaireDetailsDto.dataCollection());
-        if(!dataCollectionCheck.isValid()) errorMessages.add(dataCollectionCheck.errorMessage());
-
-        ValidationResult ddiAgencyCheck =  questionnaireDDIAgencyCheck.validateAgency(questionnaireDetailsDto.agency());
-
-        if(!ddiAgencyCheck.isValid()) errorMessages.add(ddiAgencyCheck.errorMessage());
-
-        if(!errorMessages.isEmpty()){
-            throw new ModelValidationException("Questionnaire details invalid", errorMessages);
+    /** Check that the DDI agency of the questionnaire exists in the metadata repository. */
+    private void validateAgency(QuestionnaireDetailsDto questionnaireDetailsDto) {
+        ValidationResult result = questionnaireDDIAgencyCheck.validateAgency(questionnaireDetailsDto.agency());
+        if (!result.isValid()) {
+            throw new QuestionnaireDetailsInvalidException(result.errorMessage());
         }
     }
 
