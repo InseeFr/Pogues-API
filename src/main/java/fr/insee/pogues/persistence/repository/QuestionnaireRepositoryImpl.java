@@ -13,10 +13,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.JsonNode;
 
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +43,9 @@ public class QuestionnaireRepositoryImpl implements QuestionnaireRepository {
 	JdbcTemplate jdbcTemplate;
 
 	@Autowired
+	NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+	@Autowired
 	private QuestionnaireJpaRepository questionnaireJpaRepository;
 
 	@Autowired
@@ -48,6 +54,25 @@ public class QuestionnaireRepositoryImpl implements QuestionnaireRepository {
 	private static final String NOT_FOUND="Not found";
 	private static final String FORBIDDEN="Forbidden";
 
+	private static final String META_QUESTIONNAIRE_QUERY = """
+        SELECT
+            jsonb_build_object(
+                'id', (data::jsonb)['id'],
+                'Name', (data::jsonb)['Name'],
+                'lastUpdatedDate', (data::jsonb)['lastUpdatedDate'],
+                'Label', (data::jsonb)['Label'],
+                'final', (data::jsonb)['final'],
+                'serieId', serie_id,
+                'TargetMode', (data::jsonb)['TargetMode'],
+                'flowLogic', (data::jsonb)['flowLogic'],
+                'formulasLanguage', (data::jsonb)['formulasLanguage'])
+        FROM pogues
+        WHERE (:owner IS NULL OR (data ->> 'owner') = :owner)
+            AND (:serieId IS NULL OR serie_id = :serieId)
+            AND (data::jsonb)['Name'] IS NOT NULL
+            AND (data::jsonb)['TargetMode'] IS NOT NULL
+            AND (data::jsonb)['flowLogic'] IS NOT NULL
+            AND (data::jsonb)['formulasLanguage'] IS NOT NULL""";
 	/**
 	 * A method to get the `QuestionnaireList` object in the database
 	 * 
@@ -113,25 +138,13 @@ public class QuestionnaireRepositoryImpl implements QuestionnaireRepository {
 	 * @param owner stamp of the owner of the questionnaire
 	 * @return metadata of a questionnaire : id, lastUpdatedDate, label, final, DataCollection and TargetMode
 	 */
-	public List<JsonNode> getMetaQuestionnaire(String owner) throws Exception {
-		String qString ="""
-				SELECT
-					jsonb_build_object(
-						'id', (data::jsonb)['id'],
-						'Name', (data::jsonb)['Name'],
-						'lastUpdatedDate', (data::jsonb)['lastUpdatedDate'],
-						'Label', (data::jsonb)['Label'],
-						'final', (data::jsonb)['final'],
-						'DataCollection', (data::jsonb)['DataCollection'],
-						'TargetMode', (data::jsonb)['TargetMode'],
-						'flowLogic', (data::jsonb)['flowLogic'],
-						'formulasLanguage', (data::jsonb)['formulasLanguage'])
-				FROM pogues WHERE (data ->> 'owner') = ? 
-					AND (data::jsonb)['Name'] IS NOT NULL
-					AND (data::jsonb)['TargetMode'] IS NOT NULL
-					AND (data::jsonb)['flowLogic'] IS NOT NULL
-					AND (data::jsonb)['formulasLanguage'] IS NOT NULL""";
-		List<PGobject> data = jdbcTemplate.queryForList(qString, PGobject.class, owner);
+	public List<JsonNode> getMetaQuestionnaire(String owner, String serieId) {
+		MapSqlParameterSource params = new MapSqlParameterSource()
+				.addValue("owner", owner, Types.VARCHAR)
+				.addValue("serieId", serieId, Types.VARCHAR);
+
+		List<PGobject> data = namedParameterJdbcTemplate.queryForList(
+				META_QUESTIONNAIRE_QUERY, params, PGobject.class);
 		return pgToJSON(data);
 	}
 

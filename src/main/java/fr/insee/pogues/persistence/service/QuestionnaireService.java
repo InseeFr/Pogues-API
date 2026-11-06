@@ -53,11 +53,8 @@ public class QuestionnaireService implements IQuestionnaireService{
     private final ModelCleaningService modelCleaningService;
     private final TimeService timeService;
 
-    public List<JsonNode> getQuestionnairesMetadata(String owner) throws Exception {
-        if (null == owner || owner.isEmpty()) {
-            throw new PoguesException(400, "Bad Request", "Missing parameter: owner");
-        }
-        return questionnaireRepository.getMetaQuestionnaire(owner);
+    public List<JsonNode> getQuestionnairesMetadata(String owner, String serieId)  {
+        return questionnaireRepository.getMetaQuestionnaire(owner, serieId);
     }
 
     @Cacheable(CacheName.STAMPS)

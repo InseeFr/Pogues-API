@@ -138,14 +138,11 @@ public class QuestionnaireController {
     })
 	@PreAuthorize(AuthorityPrivileges.HAS_USER_PRIVILEGES)
 	public ResponseEntity<Object> getQuestionnairesMetadata(
-            @RequestParam("owner") String owner
+            @RequestParam(value = "owner", required = false) String owner,
+			@RequestParam(value = "serieId", required = false) String serieId
 	) throws Exception {
-		List<JsonNode> questionnairesMetadata = new ArrayList<>();
-		if(null != owner){
-			questionnairesMetadata.addAll(questionnaireService.getQuestionnairesMetadata(owner));
-		}
-		return ResponseEntity.status(HttpStatus.OK).body(questionnairesMetadata);
-
+		log.info("Search legacy meta with owner: {} and serieId: {}", owner, serieId);
+		return ResponseEntity.status(HttpStatus.OK).body(questionnaireService.getQuestionnairesMetadata(owner, serieId));
 	}
 
 	@GetMapping("questionnaires")

@@ -24,7 +24,7 @@ public class QuestionnaireServiceStub implements IQuestionnaireService {
     private final Map<String, JsonNode> questionnaires = new HashMap<>();
 
     @Override
-    public List<JsonNode> getQuestionnairesMetadata(String owner) throws Exception {
+    public List<JsonNode> getQuestionnairesMetadata(String owner, String serieId) {
         return List.of();
     }
 

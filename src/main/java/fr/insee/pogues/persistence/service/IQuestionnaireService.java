@@ -12,7 +12,7 @@ import tools.jackson.databind.JsonNode;
 import java.util.List;
 
 public interface IQuestionnaireService {
-    List<JsonNode> getQuestionnairesMetadata(String owner) throws Exception;
+    List<JsonNode> getQuestionnairesMetadata(String owner, String serieId);
 
     List<StampDto> getQuestionnairesStamps() throws Exception;
 

@@ -23,7 +23,7 @@ public interface QuestionnaireRepository {
 
     void updateQuestionnaire(String id, JsonNode questionnaire) throws Exception;
 
-    List<JsonNode> getMetaQuestionnaire(String owner) throws Exception;
+    List<JsonNode> getMetaQuestionnaire(String owner, String serieId);
 
     List<JsonNode> getStamps() throws Exception;
     

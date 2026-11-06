@@ -43,7 +43,7 @@ public class QuestionnaireRepositoryStub implements QuestionnaireRepository {
 		return res;
 	}
 
-	public List<JsonNode> getMetaQuestionnaire(String owner) {
+	public List<JsonNode> getMetaQuestionnaire(String owner, String serieId) {
 		return List.of();
 	}
 
